@@ -40,29 +40,42 @@ Email: yafie345@gmail.com
 
 ## Movie Recommender System
 
+Di era digital saat ini, pengguna layanan streaming film seperti Netflix, Disney+, maupun platform lokal dihadapkan pada ribuan pilihan film yang tersedia. Jumlah film yang sangat banyak ini justru menjadi tantangan baru — pengguna sering mengalami kebingungan dalam memilih film yang sesuai dengan selera mereka.
 
+Sistem rekomendasi hadir sebagai solusi untuk membantu pengguna menemukan film yang relevan, menarik, dan sesuai dengan preferensi personal. Selain meningkatkan pengalaman pengguna (user experience), sistem ini juga dapat meningkatkan tingkat keterlibatan pengguna (user engagement) terhadap platform.
+
+Proyek ini memiliki dua manfaat utama. Pertama, dari sisi pengguna, sistem ini bertujuan memberikan kemudahan dalam pemilihan film yang sesuai dengan karakteristik atau histori interaksi mereka. Kedua, dari sisi pengembang (penulis), proyek ini menjadi ajang pembelajaran untuk memahami dan menerapkan berbagai pendekatan sistem rekomendasi dalam konteks nyata.
+
+Beberapa pendekatan yang digunakan dalam sistem rekomendasi ini mengacu pada literatur yang telah ada, seperti content-based filtering, collaborative filtering, dan hybrid approach (Badriyah, Restuningtyas, & Setyorini, 2017); (Wijaya & Alfian, 2018); (Prasetya, 2017).
 
 ---
 
 ### Mengapa Prediksi Harga Emas Penting?
 
+**Sistem rekomendasi sangat penting dalam konteks film** karena keputusan untuk menonton sering kali bersifat impulsif dan dipengaruhi oleh preferensi personal yang sulit didefinisikan secara eksplisit. Tidak seperti produk fisik, film memiliki nilai subjektif yang tinggi — apa yang disukai oleh satu pengguna bisa sangat berbeda dengan yang lain. Dengan adanya sistem rekomendasi, pengguna dapat menerima saran film yang sesuai dengan selera mereka tanpa harus mencari secara manual, sehingga dapat menghemat waktu dan meningkatkan kepuasan dalam menggunakan platform.
 
 
 **Referensi:**  
 
-
+- Badriyah, T., Restuningtyas, I., & Setyorini, F. (2017). Sistem Rekomendasi Collaborative Filtering Berbasis User Algoritma Adjusted Cosine Similarity. *Prosiding Seminar Nasional Sisfotek Volume 10 Nomor 1*, 38–45.
+- Wijaya, A. E., & Alfian, D. (2018). Sistem Rekomendasi Laptop Menggunakan Collaborative Filtering Dan Content-Based Filtering. *Jurnal Computech & Bisnis*, 14–16.
+- Prasetya, C. S. (2017). Sistem Rekomendasi pada E-Commerce Menggunakan K-Nearest Neighbor. *Jurnal Teknologi Informasi dan Ilmu Komputer (JTIIK)* Vol. 4, No. 3, 194-200.
 
 
 ## Business Understanding
 
-### Problem Statements
-1.
+### Problem Statement
+Pengguna platform streaming film sering kali mengalami kesulitan dalam memilih film yang sesuai dengan preferensi pribadi mereka. Hal ini disebabkan oleh banyaknya pilihan film yang tersedia dan kurangnya sistem yang dapat secara otomatis menyesuaikan rekomendasi berdasarkan karakteristik atau histori pengguna.
 
-### Goals
-1.
+### Goal
+Tujuan dari proyek ini adalah membangun sistem rekomendasi personalized yang mampu memberikan **10 film teratas (Top-N Recommendation)** sesuai dengan minat pengguna berdasarkan pendekatan yang relevan.
 
-### Solution Statements
-- 
+### Solution Approach
+Proyek ini mengusulkan solusi berupa sistem rekomendasi **hybrid**, yaitu menggabungkan dua pendekatan utama:
+- **Content-Based Filtering (CBF)**: Memanfaatkan informasi konten film seperti judul dan genre untuk mencari kesamaan antar film. Pendekatan ini sangat cocok digunakan pada kasus cold-start, yaitu ketika pengguna belum memiliki histori interaksi yang cukup.
+- **Collaborative Filtering (CF)**: Menggunakan data rating antar pengguna untuk mengidentifikasi kesamaan preferensi. Pendekatan ini lebih akurat ketika data interaksi pengguna sudah mencukupi, namun memiliki keterbatasan pada pengguna baru (cold-start problem).
+  
+Dengan mengombinasikan kedua pendekatan tersebut, sistem rekomendasi diharapkan dapat mengatasi keterbatasan masing-masing metode dan memberikan hasil rekomendasi yang lebih personal dan relevan.
 
 ## Data Understanding
 
