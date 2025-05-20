@@ -40,11 +40,11 @@ Email: yafie345@gmail.com
   - [Merge Dataset](#merge-dataset)
   - [Final Feature Dataset](#final-feature-dataset)
 - [Model Development](#model-development)
-  - [1. Content Based Filtering](#1-content-based-filtering)
-  - [2. Collaborative Filtering](#2-collaborative-filtering)
-- [Recommendation Resulty](#recommendation-result)
-  - [1. Content Based Filtering](#1-content-based-filtering)
-  - [2. Collaborative Filtering](#2-collaborative-filtering)
+  - [1. Content Based Filtering](#1.-content-based-filtering)
+  - [2. Collaborative Filtering](#2.-collaborative-filtering)
+- [Recommendation Result](#recommendation-result)
+  - [1. Content Based Filtering](#1.-content-based-filtering)
+  - [2. Collaborative Filtering](#2.-collaborative-filtering)
 - [Kesimpulan](#kesimpulan)
 
 
