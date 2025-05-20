@@ -115,14 +115,23 @@ Dataset yang digunakan terdiri dari beberapa file CSV yang saling terkait:
 1. `movies_metadata.csv`  
    Berisi informasi metadata dari film seperti judul, genre, tanggal rilis, dan deskripsi (overview).
 
+![Movies Metadata](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/movies_metadata.png)
+
+
 2. `ratings_small.csv`  
    Berisi interaksi pengguna dalam bentuk rating terhadap film, dengan kolom `userId`, `movieId`, `rating`, dan `timestamp`. Dataset ini digunakan untuk pendekatan Collaborative Filtering.
+
+   ![Rating](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/rating_dataset.png)
 
 3. `keywords.csv`  
    Berisi daftar kata kunci (keywords) untuk setiap film yang dapat digunakan untuk memperkaya fitur konten pada pendekatan Content-Based Filtering.
 
+   ![Keywords](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/keywords_dataset.png)
+
 4. `links_small.csv`  
    Dataset ini menghubungkan `movieId` dari MovieLens ke ID versi TMDb (`tmdbId`), yang diperlukan untuk mencocokkan data antar file.
+
+![Link Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/link_dataset.png)
 
 Seluruh file telah dimuat ke dalam lingkungan kerja menggunakan library Python seperti `pandas`, dan akan diproses lebih lanjut pada tahap berikutnya. Berikut contoh cara memuat file menggunakan pandas:
 
@@ -240,7 +249,7 @@ EDA ini bertujuan memberikan insight awal untuk membantu proses data preparation
 
 Hasilnya menunjukkan genre yang paling sering dipakai dalam metadata film
 
-[]()
+![Popular Genre Barchart](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/movies_popular_genre.png)
 
 **Interpretasi Visualisasi Genre Film Terpopuler**
 
@@ -252,7 +261,6 @@ Dari hasil visualisasi genre film pada dataset `movies_metadata`, terlihat bahwa
 - Distribusi genre menunjukkan adanya konsentrasi pada genre-genre mainstream, sementara genre lain cenderung memiliki representasi yang jauh lebih kecil.
 
 Insight ini dapat membantu dalam memahami tren dominan dalam industri film, serta berguna dalam pengembangan sistem rekomendasi berdasarkan genre populer.
-
 
 
 **2. Rating Dataset**
@@ -289,7 +297,7 @@ User cenderung memberikan rating yang positif terhadap film yang mereka tonton. 
 - **Visualisasi Distribusi Rating:**  
   Membuat histogram untuk melihat persebaran nilai rating yang diberikan oleh user.
 
-  
+  ![Distribusi Rating](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/distribution_rating.png)
 
 **Interpretasi Histogram Rating Film**
 
@@ -346,7 +354,7 @@ Langkah ini bertujuan untuk menganalisis kata kunci (`keywords`) yang digunakan 
 
 **Top 20 Keywords Film**
 
-
+![Top 20 Keywords](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/top_20_keywords.png)
 
 **Interpretasi Grafik Top 20 Keywords Film**
 
@@ -363,7 +371,7 @@ Keyword memberi gambaran yang cukup kuat terhadap **tema, tone, dan gaya produks
 
 **Wordcloud**
 
-
+![Wordcloud](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/wordcloud.png)
 
 **Interpretasi Word Cloud dari Keywords Film**
 
@@ -378,7 +386,6 @@ Word cloud memberikan gambaran visual terhadap kata kunci yang paling sering dig
 - Keyword seperti ini sangat berguna dalam sistem rekomendasi berbasis konten (content-based), karena bisa mencerminkan kesamaan makna antar film yang tidak bisa dilihat hanya dari genre atau rating saja.
 
 Word cloud ini juga memudahkan identifikasi **tema-tema dominan dan tren cerita** yang bisa jadi menarik buat segmentasi pengguna tertentu.
-
 
 
 ## 🦾 **Data Preparation**
@@ -457,8 +464,12 @@ Kedua dataframe ini akan digunakan sebagai basis untuk membangun sistem rekomend
 
 Content Based Feature Dataset: (9082, 10)
 
+![CBF Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/cb_dataset.png)
+
+
 Collaborative Filtering Feature Dataset: (100004, 3)
 
+![CF Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/cf_ratings_dataset.png)
 
 ## ⚙️ **Model Development**
 
@@ -699,7 +710,7 @@ Dua model dievaluasi secara terpisah:
 Akhirnya, kedua nilai RMSE dibandingkan secara visual menggunakan bar chart sederhana untuk melihat model mana yang memberikan performa prediksi terbaik.
 
 
-
+![rec_net_rmse](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/rec_net_rmse.png)
 
 
 **Interpretation – RecommenderNet RMSE Curve**
@@ -718,7 +729,7 @@ Kesimpulannya, model RecommenderNet menunjukkan performa yang baik dan stabil se
 
 
 
-
+![rmse_comparison](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/rmse_comparison.png)
 
 
 **RMSE Comparison – Memory-Based vs RecommenderNet**
@@ -744,9 +755,6 @@ Grafik di atas membandingkan performa dua model Collaborative Filtering berdasar
   - Penggunaan hyperparameter tuning (batch size, learning rate, embedding size)
 
 Namun, untuk kondisi saat ini, **model Memory-Based menjadi pilihan yang lebih baik** dalam hal akurasi prediksi rating.
-
-> Catatan: RMSE bukan satu-satunya metrik untuk evaluasi sistem rekomendasi — metrik seperti Precision@K dan Recall@K juga penting untuk mengukur relevansi rekomendasi secara langsung.
-
 
 
 ## **Recommendation Result**
@@ -781,7 +789,7 @@ Contoh penggunaannya:
 recommend_cb("The Matrix")
 ```
 
-
+![recommendation_result_cbf](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/recommendation_result_cbf.png)
 
 **Interpretation – Content-Based Recommendation (TF-IDF)**
 
