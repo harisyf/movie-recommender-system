@@ -699,6 +699,12 @@ Kedua model ini selanjutnya siap dievaluasi dan digunakan untuk menghasilkan rek
 
 Evaluasi model Collaborative Filtering dilakukan dengan menggunakan metrik **Root Mean Squared Error (RMSE)**, yang mengukur seberapa dekat prediksi model terhadap rating aktual dari user.
 
+**Perhitungan metrik evaluasi**, yaitu:
+   
+   - **RMSE (Root Mean Squared Error)**: menghitung error dengan penalti lebih besar terhadap prediksi yang jauh meleset
+
+     $\text{RMSE} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$
+
 Dua model dievaluasi secara terpisah:
 
 - **Memory-Based CF**  
