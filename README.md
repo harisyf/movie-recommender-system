@@ -93,13 +93,13 @@ Proyek ini mengembangkan dua pendekatan sistem rekomendasi secara terpisah, yait
 Kedua pendekatan ini akan dibandingkan untuk mengevaluasi efektivitas masing-masing dalam memberikan rekomendasi top-10 film kepada pengguna.
 
 
-## 🔍 Data Understanding
+## Data Understanding
 
 Sebelum membangun model prediksi, penting untuk memahami terlebih dahulu karakteristik dataset yang digunakan. Pada tahap *data understanding*, dilakukan eksplorasi terhadap struktur data, kondisi kualitas data, serta pemahaman terhadap fitur-fitur yang tersedia.
 
 Langkah ini bertujuan untuk memastikan bahwa data yang digunakan benar-benar representatif, relevan, dan siap untuk diproses lebih lanjut dalam tahap modeling. Selain itu, melalui pemahaman awal terhadap data, potensi masalah seperti missing values, atau duplikasi dapat diidentifikasi dan ditangani dengan tepat.
 
-### 📥 Data Collecting and Loading
+### Data Collecting and Loading
 
 Data yang digunakan dalam proyek ini diperoleh dari Kaggle.com, dan dapat diakses melalui tautan berikut:  
 Kaggle [The Movie Dataset](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset/data).
@@ -138,7 +138,7 @@ keywords = pd.read_csv('keywords.csv')
 links = pd.read_csv('links_small.csv')
 ```
 
-### 🔬 Data Checking
+### Data Checking
 
 
 Sebelum masuk ke tahap eksplorasi dan pembersihan data lebih lanjut, dilakukan pengecekan awal terhadap masing-masing dataset yang digunakan. Pengecekan ini bertujuan untuk memahami kondisi awal data seperti ukuran (dimensi), keberadaan duplikasi, serta nilai yang hilang (missing values) pada setiap dataset.
@@ -197,7 +197,7 @@ for name, df in datasets.items():
 - Tidak ada missing values.
 
 
-### 📊 **Exploratory Data Analysis**:
+### **Exploratory Data Analysis**:
 
 
 EDA dilakukan untuk memahami struktur dan karakteristik awal dari setiap dataset.  
@@ -382,7 +382,7 @@ Word cloud memberikan gambaran visual terhadap kata kunci yang paling sering dig
 Word cloud ini juga memudahkan identifikasi **tema-tema dominan dan tren cerita** yang bisa jadi menarik buat segmentasi pengguna tertentu.
 
 
-## 🦾 **Data Preparation**
+## **Data Preparation**
 
 Tahap *Data Preparation* bertujuan untuk membersihkan dan mengolah data agar siap digunakan dalam proses modeling sistem rekomendasi. Berdasarkan alur kode, proses ini terdiri dari empat tahap utama:
 
@@ -394,7 +394,7 @@ Tahap *Data Preparation* bertujuan untuk membersihkan dan mengolah data agar sia
 4. Final Feature Datasets (CBF & CF)
 
 
-### 🧹 **Data Cleaning**
+### **Data Cleaning**
 
 Langkah ini fokus pada konsistensi format dan penghapusan data yang tidak valid. Beberapa aksi utama yang dilakukan:
 
@@ -419,7 +419,7 @@ Langkah ini fokus pada konsistensi format dan penghapusan data yang tidak valid.
 ---
 
 
-### 🫧 **Sanity Check**
+### **Sanity Check**
 
 Tahap ini memastikan bahwa hasil *cleaning* berjalan dengan benar. Beberapa validasi yang dilakukan:
 
@@ -431,7 +431,7 @@ Tahap ini memastikan bahwa hasil *cleaning* berjalan dengan benar. Beberapa vali
 Jika ada keanehan seperti tipe data tidak sesuai atau genre tak dikenal, proses akan dihentikan melalui `assert`.
 
 
-### 🧩 **Merge Datasets**
+### **Merge Datasets**
 
 Setelah data bersih, dilakukan proses penggabungan dataset agar siap untuk modeling:
 
@@ -465,7 +465,7 @@ Collaborative Filtering Feature Dataset: (100004, 3)
 
 ![CF Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/cf_ratings_dataset.png)
 
-## ⚙️ **Model Development**
+## **Model Development**
 
 Pada tahap ini, kita membangun dan mengembangkan dua pendekatan utama dalam sistem rekomendasi film, yaitu **Content-Based Filtering (CBF)** dan **Collaborative Filtering (CF)**. Masing-masing pendekatan dikembangkan melalui tahapan yang sistematis mulai dari *model building*, *training*, hingga *evaluation* untuk mengukur performanya.
 
