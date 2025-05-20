@@ -93,8 +93,29 @@ Proyek ini mengembangkan dua pendekatan sistem rekomendasi secara terpisah, yait
 - **Content-Based Filtering (CBF)**  
   Pendekatan ini memanfaatkan informasi konten dari film seperti judul dan genre untuk mengukur kemiripan antar film. Sistem akan merekomendasikan film yang memiliki karakteristik serupa dengan film yang sebelumnya disukai oleh pengguna. Metode ini sangat efektif untuk mengatasi masalah cold-start, yaitu ketika pengguna belum memiliki cukup riwayat interaksi.
 
+  **Kelebihan:**
+  - Tidak memerlukan data dari pengguna lain (independen)
+  - Efektif untuk cold-start user (pengguna baru)
+  - Dapat memberikan rekomendasi yang konsisten sesuai preferensi pengguna
+
+  **Kekurangan:**
+  - Kurang mampu memberikan eksplorasi di luar minat pengguna
+  - Bergantung pada kualitas dan kelengkapan fitur konten film
+  - Tidak mempelajari pola dari komunitas pengguna secara luas
+
 - **Collaborative Filtering (CF)**  
   Pendekatan ini didasarkan pada interaksi pengguna, khususnya melalui data rating. Sistem akan merekomendasikan film berdasarkan pola kesamaan preferensi antara pengguna yang berbeda. CF dapat memberikan hasil rekomendasi yang lebih personal jika data interaksi pengguna tersedia dalam jumlah cukup. Namun, metode ini memiliki kelemahan ketika menangani pengguna baru atau item yang belum pernah dirating (cold-start problem).
+
+  **Kelebihan:**
+  - Mampu memberikan rekomendasi yang lebih bervariasi
+  - Tidak memerlukan informasi konten film secara mendetail
+  - Belajar dari pola kolektif pengguna lain
+
+  **Kekurangan:**
+  - Tidak bekerja dengan baik pada kasus cold-start (user atau item baru)
+  - Memerlukan cukup banyak data interaksi pengguna
+  - Sensitif terhadap data sparsity (jika terlalu banyak user yang belum memberi rating)
+
 
 Kedua pendekatan ini akan dibandingkan untuk mengevaluasi efektivitas masing-masing dalam memberikan rekomendasi top-10 film kepada pengguna.
 
