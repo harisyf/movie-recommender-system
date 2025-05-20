@@ -30,8 +30,6 @@ Email: yafie345@gmail.com
   - [Data Collecting and Loading](#data-collecting-and-loading)
   - [Data Checking](#data-checking)
   - [Exploratory Data Analysis](#exploratory-data-analysis)
-    - [Statistika Deskriptif](#statistika-deskriptif)
-    - [Data Visualization](#data-visualization)
 - [Data Preparation](#data-preparation)
   - [Import Library Data Preparation](#import-library-data-preparation)
   - [Data Cleaning](#data-cleaning)
@@ -237,7 +235,7 @@ EDA dilakukan secara terpisah untuk tiap dataset sebagai berikut:
 
 EDA ini bertujuan memberikan insight awal untuk membantu proses data preparation dan pemodelan sistem rekomendasi film ke depannya.
 
-**1. Movies Metadata Dataset**
+#### **1. Movies Metadata Dataset**
 **Visualisasi Genre Populer:**  
   Menggunakan bar chart untuk menampilkan genre film yang paling sering muncul. Langkah ini bertujuan untuk mengetahui genre film yang paling sering muncul dalam dataset.
 
@@ -263,7 +261,7 @@ Dari hasil visualisasi genre film pada dataset `movies_metadata`, terlihat bahwa
 Insight ini dapat membantu dalam memahami tren dominan dalam industri film, serta berguna dalam pengembangan sistem rekomendasi berdasarkan genre populer.
 
 
-**2. Rating Dataset**
+#### **2. Rating Dataset**
 - **Statistik Deskriptif:**  
   Menghitung nilai minimum, maksimum, mean, dan distribusi rating.
   
@@ -312,7 +310,7 @@ Visualisasi menunjukkan distribusi diskret rating yang diberikan user terhadap f
 Kecenderungan rating yang tinggi ini perlu diperhatikan dalam model rekomendasi, karena bisa menyebabkan overfitting terhadap film yang populer atau banyak dinilai positif.
 
 
-**3. Links Dataset**
+#### **3. Links Dataset**
 - **Analisis ID Unik:**  
   Mengecek keberagaman dan kelengkapan ID film dari berbagai sumber (IMDb, TMDb, dll).
 Berikut adalah ringkasan informasi terkait jumlah ID unik dan nilai yang hilang pada dataset `links_small.csv`:
@@ -837,6 +835,8 @@ Contoh penggunaannya:
 recommend_cf(user_id=45)
 ```
 
+**Rekomendasi untuk User ID 45:**
+
 | Rank | movieId | Title                   | Genres                                      | Predicted Score |
 |------|---------|--------------------------|---------------------------------------------|-----------------|
 | 1    | 1252    | Chinatown                | Crime Drama Mystery Thriller                | 19.394881       |
@@ -850,6 +850,8 @@ recommend_cf(user_id=45)
 | 9    | 1208    | Apocalypse Now           | Drama War                                   | 17.881439       |
 | 10   | 3481    | High Fidelity            | Comedy Drama Romance Music                  | 17.853777       |
 
+
+**Film yang pernah dirating tinggi oleh User ID 45:**
 
 | Rank | movieId | Title                   | Genres                               | Rating |
 |------|---------|--------------------------|--------------------------------------|--------|
