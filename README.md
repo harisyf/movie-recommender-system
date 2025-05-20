@@ -1,6 +1,22 @@
 # **Machine Learning Project Report - Haris Yafie**
 
-Proyek untuk pembelajaran saya dalam kursus Dicoding Machine Learning Terapan. Proyek ini adalah proyek sistem rekomendasi film. Data diperoleh dari Kaggle.com yang berjudul The Movie Dataset.
+Di tengah melimpahnya jumlah film yang tersedia di platform streaming digital, pengguna sering mengalami **kesulitan dalam memilih film** yang sesuai dengan selera mereka. Untuk menjawab tantangan tersebut, proyek ini membangun sebuah **Sistem Rekomendasi Film** berbasis machine learning yang bertujuan memberikan saran film yang **lebih personal dan relevan**. Proyek ini untuk pembelajaran saya dalam kursus Dicoding Machine Learning Terapan. Proyek ini adalah proyek sistem rekomendasi film. Data diperoleh dari Kaggle.com yang berjudul The Movie Dataset.
+
+Proyek ini mengeksplorasi dua pendekatan utama:
+
+1. **Content-Based Filtering (CBF)**  
+   Memberikan rekomendasi berdasarkan kemiripan konten antar film, seperti judul, genre, dan kata kunci. Cocok digunakan untuk user baru yang belum banyak memiliki histori rating (*cold-start problem*).
+
+2. **Collaborative Filtering (CF)**  
+   Memberikan rekomendasi berdasarkan pola interaksi user terhadap film, khususnya dari data rating. Terdapat dua model yang dibangun:
+   - **Memory-Based CF**: menggunakan cosine similarity antar item
+   - **RecommenderNet**: model neural network sederhana berbasis embedding
+
+**Project Highlight**
+- Melakukan **preprocessing dan rekayasa fitur** dari data metadata film, rating pengguna, dan keywords.
+- Membangun beberapa model rekomendasi dan mengevaluasi performanya menggunakan **RMSE** serta interpretasi kualitas rekomendasi.
+- Menunjukkan bahwa **CBF efektif dalam menemukan film yang mirip secara tema**, sedangkan **Memory-Based CF unggul dalam memberikan rekomendasi yang personalized**.
+- **RecommenderNet** memiliki potensi untuk dikembangkan lebih lanjut, meskipun pada kondisi saat ini performanya masih perlu ditingkatkan.
 
 ID Dicoding: harisyafie
 
@@ -50,7 +66,7 @@ Beberapa pendekatan yang digunakan dalam sistem rekomendasi ini mengacu pada lit
 
 ---
 
-### Mengapa Prediksi Harga Emas Penting?
+### Mengapa Sistem Rekomendasi Penting?
 
 **Sistem rekomendasi sangat penting dalam konteks film** karena keputusan untuk menonton sering kali bersifat impulsif dan dipengaruhi oleh preferensi personal yang sulit didefinisikan secara eksplisit. Tidak seperti produk fisik, film memiliki nilai subjektif yang tinggi — apa yang disukai oleh satu pengguna bisa sangat berbeda dengan yang lain. Dengan adanya sistem rekomendasi, pengguna dapat menerima saran film yang sesuai dengan selera mereka tanpa harus mencari secara manual, sehingga dapat menghemat waktu dan meningkatkan kepuasan dalam menggunakan platform.
 
@@ -71,29 +87,28 @@ Pengguna platform streaming film sering kali mengalami kesulitan dalam memilih f
 Tujuan dari proyek ini adalah membangun sistem rekomendasi personalized yang mampu memberikan **10 film teratas (Top-N Recommendation)** sesuai dengan minat pengguna berdasarkan pendekatan yang relevan.
 
 ### Solution Approach
-Proyek ini mengusulkan solusi berupa sistem rekomendasi **hybrid**, yaitu menggabungkan dua pendekatan utama:
-- **Content-Based Filtering (CBF)**: Memanfaatkan informasi konten film seperti judul dan genre untuk mencari kesamaan antar film. Pendekatan ini sangat cocok digunakan pada kasus cold-start, yaitu ketika pengguna belum memiliki histori interaksi yang cukup.
-- **Collaborative Filtering (CF)**: Menggunakan data rating antar pengguna untuk mengidentifikasi kesamaan preferensi. Pendekatan ini lebih akurat ketika data interaksi pengguna sudah mencukupi, namun memiliki keterbatasan pada pengguna baru (cold-start problem).
-  
-Dengan mengombinasikan kedua pendekatan tersebut, sistem rekomendasi diharapkan dapat mengatasi keterbatasan masing-masing metode dan memberikan hasil rekomendasi yang lebih personal dan relevan.
 
-## Data Understanding
+Proyek ini mengembangkan dua pendekatan sistem rekomendasi secara terpisah, yaitu **Content-Based Filtering (CBF)** dan **Collaborative Filtering (CF)**. Masing-masing pendekatan dirancang untuk memberikan rekomendasi film yang relevan berdasarkan perspektif yang berbeda.
+
+- **Content-Based Filtering (CBF)**  
+  Pendekatan ini memanfaatkan informasi konten dari film seperti judul dan genre untuk mengukur kemiripan antar film. Sistem akan merekomendasikan film yang memiliki karakteristik serupa dengan film yang sebelumnya disukai oleh pengguna. Metode ini sangat efektif untuk mengatasi masalah cold-start, yaitu ketika pengguna belum memiliki cukup riwayat interaksi.
+
+- **Collaborative Filtering (CF)**  
+  Pendekatan ini didasarkan pada interaksi pengguna, khususnya melalui data rating. Sistem akan merekomendasikan film berdasarkan pola kesamaan preferensi antara pengguna yang berbeda. CF dapat memberikan hasil rekomendasi yang lebih personal jika data interaksi pengguna tersedia dalam jumlah cukup. Namun, metode ini memiliki kelemahan ketika menangani pengguna baru atau item yang belum pernah dirating (cold-start problem).
+
+Kedua pendekatan ini akan dibandingkan untuk mengevaluasi efektivitas masing-masing dalam memberikan rekomendasi top-10 film kepada pengguna.
+
+
+## 🔍 Data Understanding
 
 Sebelum membangun model prediksi, penting untuk memahami terlebih dahulu karakteristik dataset yang digunakan. Pada tahap *data understanding*, dilakukan eksplorasi terhadap struktur data, kondisi kualitas data, serta pemahaman terhadap fitur-fitur yang tersedia.
 
 Langkah ini bertujuan untuk memastikan bahwa data yang digunakan benar-benar representatif, relevan, dan siap untuk diproses lebih lanjut dalam tahap modeling. Selain itu, melalui pemahaman awal terhadap data, potensi masalah seperti missing values, atau duplikasi dapat diidentifikasi dan ditangani dengan tepat.
 
-### Data Collecting and Loading
+### 📥 Data Collecting and Loading
 
 Data yang digunakan dalam proyek ini diperoleh dari Kaggle.com, dan dapat diakses melalui tautan berikut:  
 Kaggle [The Movie Dataset](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset/data).
-
-
-## 🔍 Data Understanding
-
-### 📥 Data Collecting and Loading
-
-Pada proyek ini, sistem rekomendasi dibangun menggunakan kumpulan data film dari sumber publik yang sering digunakan dalam penelitian dan pengembangan sistem rekomendasi, yaitu **MovieLens** dan **The Movie Database (TMDb)**.
 
 Dataset yang digunakan terdiri dari beberapa file CSV yang saling terkait:
 
@@ -120,7 +135,7 @@ keywords = pd.read_csv('keywords.csv')
 links = pd.read_csv('links_small.csv')
 ```
 
-### Data Checking
+### 🔬 Data Checking
 
 
 Sebelum masuk ke tahap eksplorasi dan pembersihan data lebih lanjut, dilakukan pengecekan awal terhadap masing-masing dataset yang digunakan. Pengecekan ini bertujuan untuk memahami kondisi awal data seperti ukuran (dimensi), keberadaan duplikasi, serta nilai yang hilang (missing values) pada setiap dataset.
@@ -179,7 +194,7 @@ for name, df in datasets.items():
 - Tidak ada missing values.
 
 
-### **Exploratory Data Analysis**:
+### 📊 **Exploratory Data Analysis**:
 
 
 EDA dilakukan untuk memahami struktur dan karakteristik awal dari setiap dataset.  
@@ -366,7 +381,7 @@ Word cloud ini juga memudahkan identifikasi **tema-tema dominan dan tren cerita*
 
 
 
-## **Data Preparation**
+## 🦾 **Data Preparation**
 
 Tahap *Data Preparation* bertujuan untuk membersihkan dan mengolah data agar siap digunakan dalam proses modeling sistem rekomendasi. Berdasarkan alur kode, proses ini terdiri dari empat tahap utama:
 
@@ -378,7 +393,7 @@ Tahap *Data Preparation* bertujuan untuk membersihkan dan mengolah data agar sia
 4. Final Feature Datasets (CBF & CF)
 
 
-### **Data Cleaning**
+### 🧹 **Data Cleaning**
 
 Langkah ini fokus pada konsistensi format dan penghapusan data yang tidak valid. Beberapa aksi utama yang dilakukan:
 
@@ -403,7 +418,7 @@ Langkah ini fokus pada konsistensi format dan penghapusan data yang tidak valid.
 ---
 
 
-### **Sanity Check**
+### 🫧 **Sanity Check**
 
 Tahap ini memastikan bahwa hasil *cleaning* berjalan dengan benar. Beberapa validasi yang dilakukan:
 
@@ -415,7 +430,7 @@ Tahap ini memastikan bahwa hasil *cleaning* berjalan dengan benar. Beberapa vali
 Jika ada keanehan seperti tipe data tidak sesuai atau genre tak dikenal, proses akan dihentikan melalui `assert`.
 
 
-### **Merge Datasets**
+### 🧩 **Merge Datasets**
 
 Setelah data bersih, dilakukan proses penggabungan dataset agar siap untuk modeling:
 
@@ -445,7 +460,7 @@ Content Based Feature Dataset: (9082, 10)
 Collaborative Filtering Feature Dataset: (100004, 3)
 
 
-## **Model Development**
+## ⚙️ **Model Development**
 
 Pada tahap ini, kita membangun dan mengembangkan dua pendekatan utama dalam sistem rekomendasi film, yaitu **Content-Based Filtering (CBF)** dan **Collaborative Filtering (CF)**. Masing-masing pendekatan dikembangkan melalui tahapan yang sistematis mulai dari *model building*, *training*, hingga *evaluation* untuk mengukur performanya.
 
