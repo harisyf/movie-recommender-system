@@ -580,7 +580,7 @@ Parameter yang digunakan
 
 Count Vectorizer cocok untuk baseline model atau ketika kita ingin representasi yang lebih sederhana dan eksplisit tanpa pembobotan seperti TF-IDF.
 
-## **Model Development**
+## **Modelling**
 
 Pada tahap ini, kita membangun dan mengembangkan dua pendekatan utama dalam sistem rekomendasi film, yaitu **Content-Based Filtering (CBF)** dan **Collaborative Filtering (CF)**. Masing-masing pendekatan dikembangkan melalui tahapan yang sistematis mulai dari *model building*, *training*, hingga *evaluation* untuk mengukur performanya.
 
