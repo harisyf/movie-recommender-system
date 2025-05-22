@@ -39,6 +39,7 @@ Email: yafie345@gmail.com
   - [Sanity Check](#sanity-check)
   - [Merge Datasets](#merge-datasets)
   - [Final Feature Dataset](#final-feature-dataset)
+  - [Feature Extraction for Content Based Filtering](#feature-extraction-for-content-based-filtering)
 - [Model Development](#model-development)
   - [1. Content Based Filtering](#content-based-filtering)
      - [Model Building](#model-building)
@@ -47,11 +48,11 @@ Email: yafie345@gmail.com
      - [Model Building](#model-building)
      - [Train the Model](#train-the-model)
 - [Model Evaluation](#model-evaluation)
-  - [1. Content Based Filtering](#content-based-filtering)
-  - [2. Collaborative Filtering](#collaborative-filtering)
+  - [1. Content Based Filtering Evaluation](#content-based-filtering-evaluation)
+  - [2. Collaborative Filtering Evaluation](#collaborative-filtering-evaluation)
 - [Recommendation Result](#recommendation-result)
-  - [1. Content Based Filtering](#content-based-filtering)
-  - [2. Collaborative Filtering](#collaborative-filtering)
+  - [1. Content Based Filtering Recommendation](#content-based-filtering-recommendation)
+  - [2. Collaborative Filtering Recommendation](#collaborative-filtering-recommendation)
 - [Kesimpulan](#kesimpulan)
 
 
@@ -698,7 +699,7 @@ Kedua model ini selanjutnya siap dievaluasi dan digunakan untuk menghasilkan rek
 
 ## **Model Evaluation**
 
-### **Content Based Evaluation**
+### **Content Based Filtering Evaluation**
 
 Evaluasi model Content-Based Filtering dilakukan dengan sanity check, yaitu dengan memeriksa apakah rekomendasi yang dihasilkan secara konten memang relevan dengan film acuan.
 Sebagai contoh, untuk film Beauty and the Beast, sistem merekomendasikan film dengan genre dan tema yang serupa, seperti Cinderella atau The Little Mermaid, yang menunjukkan bahwa model bekerja dengan baik dalam mengenali kesamaan konten.
