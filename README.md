@@ -43,11 +43,12 @@ Email: yafie345@gmail.com
   - [1. Content Based Filtering](#content-based-filtering)
      - [Model Building](#model-building)
      - [Model Computation](#model-computation)
-     - [Model Evaluation](#model-evaluation)
   - [2. Collaborative Filtering](#collaborative-filtering)
      - [Model Building](#model-building)
      - [Train the Model](#train-the-model)
-     - [Model Evaluation](#model-evaluation)
+- [Model Evaluation](#model-evaluation)
+  - [1. Content Based Filtering](#content-based-filtering)
+  - [2. Collaborative Filtering](#collaborative-filtering)
 - [Recommendation Result](#recommendation-result)
   - [1. Content Based Filtering](#content-based-filtering)
   - [2. Collaborative Filtering](#collaborative-filtering)
@@ -138,21 +139,72 @@ Dataset yang digunakan terdiri dari beberapa file CSV yang saling terkait:
 
 ![Movies Metadata](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/movies_metadata.png)
 
+| Variabel               | Deskripsi                                                                 |
+|------------------------|---------------------------------------------------------------------------|
+| `adult`                | Menunjukkan apakah film diperuntukkan untuk dewasa (`True` / `False`)     |
+| `belongs_to_collection`| Informasi koleksi jika film merupakan bagian dari franchise                |
+| `budget`               | Anggaran produksi film dalam USD                                          |
+| `genres`               | Daftar genre film (berformat list of dict, misalnya "Action", "Drama")    |
+| `homepage`             | URL situs resmi film jika tersedia                                        |
+| `id`                   | ID unik film dari TMDB                                                    |
+| `imdb_id`              | ID film dari IMDb                                                         |
+| `original_language`    | Bahasa asli film (misalnya: `en` untuk English)                           |
+| `original_title`       | Judul asli film sebelum diterjemahkan                                     |
+| `overview`             | Ringkasan atau sinopsis film                                              |
+| `popularity`           | Skor popularitas film berdasarkan TMDB                                    |
+| `poster_path`          | Path URL ke poster film di TMDB                                           |
+| `production_companies` | Daftar perusahaan produksi film (berformat list of dict)                  |
+| `production_countries` | Negara tempat produksi film dibuat (berformat list of dict)               |
+| `release_date`         | Tanggal rilis film                                                        |
+| `revenue`              | Total pendapatan kotor film dalam USD                                     |
+| `runtime`              | Durasi film dalam satuan menit                                            |
+| `spoken_languages`     | Daftar bahasa yang digunakan dalam film (berformat list of dict)          |
+| `status`               | Status film seperti `Released`, `Post Production`, dll.                   |
+| `tagline`              | Slogan atau tagline promosi film                                          |
+| `title`                | Judul film versi rilis                                                    |
+| `video`                | Menunjukkan apakah entri ini merupakan video (`True` / `False`)           |
+| `vote_average`         | Rata-rata skor rating dari pengguna TMDB                                  |
+| `vote_count`           | Jumlah total rating yang diberikan oleh pengguna                          |
+
+---
 
 2. `ratings_small.csv`  
    Berisi interaksi pengguna dalam bentuk rating terhadap film, dengan kolom `userId`, `movieId`, `rating`, dan `timestamp`. Dataset ini digunakan untuk pendekatan Collaborative Filtering.
 
    ![Rating](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/rating_dataset.png)
 
+   | Variabel   | Deskripsi                                                     |
+|------------|---------------------------------------------------------------|
+| `userId`   | ID unik pengguna                                              |
+| `movieId`  | ID unik film dari MovieLens                                   |
+| `rating`   | Nilai rating yang diberikan pengguna (skala 0.5–5.0)          |
+| `timestamp`| Waktu pemberian rating dalam format UNIX timestamp            |
+
+---
+
+
 3. `keywords.csv`  
    Berisi daftar kata kunci (keywords) untuk setiap film yang dapat digunakan untuk memperkaya fitur konten pada pendekatan Content-Based Filtering.
 
    ![Keywords](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/keywords_dataset.png)
 
+| Variabel  | Deskripsi                                                |
+|-----------|----------------------------------------------------------|
+| `movieId` | ID film dari MovieLens                                   |
+| `imdbId`  | ID film dari IMDb                                        |
+| `tmdbId`  | ID film dari TMDB (digunakan untuk menggabungkan dataset)|
+
+---
+
 4. `links_small.csv`  
    Dataset ini menghubungkan `movieId` dari MovieLens ke ID versi TMDb (`tmdbId`), yang diperlukan untuk mencocokkan data antar file.
 
 ![Link Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/link_dataset.png)
+
+| Variabel  | Deskripsi                                                                          |
+|-----------|--------------------------------------------------------------------------------------|
+| `id`      | ID film dari TMDB (sama dengan `id` di `movies_metadata.csv`)                       |
+| `keywords`| Daftar keyword yang merepresentasikan tema film (berformat string JSON)             |
 
 Seluruh file telah dimuat ke dalam lingkungan kerja menggunakan library Python seperti `pandas`, dan akan diproses lebih lanjut pada tahap berikutnya. Berikut contoh cara memuat file menggunakan pandas:
 
@@ -492,6 +544,41 @@ Collaborative Filtering Feature Dataset: (100004, 3)
 
 ![CF Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/cf_ratings_dataset.png)
 
+
+### **Feature Extraction for Content Based Filtering**
+
+Untuk membangun model Content-Based Filtering, diperlukan representasi numerik dari data teks (judul, genre, overview, keywords). Oleh karena itu, dilakukan proses ekstraksi fitur teks menggunakan dua pendekatan:
+
+#### TF-IDF Vectorization
+TF-IDF (Term Frequency - Inverse Document Frequency) adalah teknik untuk merepresentasikan teks sebagai vektor numerik berdasarkan seberapa penting suatu kata dalam suatu dokumen relatif terhadap keseluruhan korpus. Tujuannya adalah untuk menurunkan bobot kata-kata umum yang sering muncul di banyak dokumen (seperti "the", "and") dan menaikkan bobot kata-kata yang lebih unik dalam dokumen tertentu.
+
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+tfidf_vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2))
+```
+
+Parameter yang digunakan
+`stop_words="english"`: Menghapus kata-kata umum dalam bahasa Inggris seperti "the", "and", "is", dll agar tidak mendominasi representasi.
+
+`ngram_range=(1, 2)`: Menggunakan unigram (1 kata) dan bigram (2 kata berurutan) sebagai fitur. Ini membantu menangkap frasa penting seperti "science fiction" atau "love story".
+
+TF-IDF cocok digunakan untuk mencari kata-kata yang paling relevan secara kontekstual dalam dokumen.
+
+#### Count Vectorization
+Count Vectorizer mengubah kumpulan dokumen teks menjadi matriks frekuensi kata. Setiap kata unik menjadi fitur, dan nilainya adalah berapa kali kata tersebut muncul dalam dokumen.
+
+```python
+from sklearn.feature_extraction.text import CountVectorizer
+
+count_vec = CountVectorizer(stop_words="english")
+```
+
+Parameter yang digunakan
+`stop_words="english"`: Menghilangkan stopwords bahasa Inggris agar hanya kata penting yang digunakan sebagai fitur.
+
+Count Vectorizer cocok untuk baseline model atau ketika kita ingin representasi yang lebih sederhana dan eksplisit tanpa pembobotan seperti TF-IDF.
+
 ## **Model Development**
 
 Pada tahap ini, kita membangun dan mengembangkan dua pendekatan utama dalam sistem rekomendasi film, yaitu **Content-Based Filtering (CBF)** dan **Collaborative Filtering (CF)**. Masing-masing pendekatan dikembangkan melalui tahapan yang sistematis mulai dari *model building*, *training*, hingga *evaluation* untuk mengukur performanya.
@@ -546,9 +633,75 @@ Masing-masing vectorizer dimasukkan ke dalam fungsi `_build_cb_model()` untuk me
 Kedua model ini siap digunakan untuk menghitung kesamaan antar film dan menghasilkan rekomendasi berbasis konten yang berbeda gaya pendekatannya.
 
 
-#### **Model Evaluation**
+### **Collaborative Filtering**
 
-Evaluasi model Content-Based Filtering dilakukan menggunakan metode sederhana namun efektif yang disebut **sanity check**. Tujuannya adalah untuk melihat apakah model mampu merekomendasikan film yang relevan berdasarkan preferensi user.
+Collaborative Filtering (CF) adalah pendekatan sistem rekomendasi yang berdasarkan pada pola interaksi pengguna terhadap item, bukan pada konten dari item itu sendiri. Dalam konteks proyek ini, CF memanfaatkan **data rating dari user terhadap film** untuk mempelajari pola preferensi yang serupa antar pengguna atau antar film.
+
+Ide utamanya: *"Jika dua user menyukai film yang sama, maka mereka cenderung akan menyukai film lainnya yang juga disukai oleh user dengan preferensi serupa."*
+
+CF sangat efektif untuk menghasilkan rekomendasi **personalized** karena benar-benar didasarkan pada kebiasaan dan interaksi nyata dari pengguna. Namun, pendekatan ini juga memiliki tantangan seperti:
+- *Cold-start problem* untuk user baru tanpa histori rating
+- *Sparsity problem* karena kebanyakan user hanya memberi rating ke sedikit film
+
+Dalam proyek ini, dua pendekatan CF akan digunakan:
+1. **Memory-Based Collaborative Filtering** – Menghitung kesamaan antar item berdasarkan user-item matrix.
+2. **Model-Based Collaborative Filtering** dengan neural network sederhana (*RecommenderNet*).
+
+Keduanya akan dibandingkan dari sisi hasil rekomendasi dan performa metrik.
+
+
+#### **Model Building**
+
+Pada Collaborative Filtering, kita membangun dua jenis model berdasarkan data rating antar user dan film:
+
+---
+
+**1. Memory-Based Collaborative Filtering**
+
+Pendekatan ini menggunakan **item-item similarity** berdasarkan pola rating yang diberikan oleh user. Langkah-langkah utamanya:
+
+- Membuat **user-item matrix** dari data rating.
+- Mengubahnya menjadi matriks sparse (`csr_matrix`) untuk efisiensi komputasi.
+- Menghitung **cosine similarity** antar film berdasarkan rating user.
+- Mengembangkan fungsi `get_recs_memory()` untuk memberikan rekomendasi film kepada user berdasarkan rating tinggi dari film serupa yang pernah ditonton.
+
+Pendekatan ini mudah diimplementasikan dan tidak memerlukan proses training model, tetapi bisa terkena masalah sparsity jika banyak film belum memiliki cukup rating.
+
+---
+
+**2. Model-Based Collaborative Filtering (RecommenderNet)**
+
+Model ini menggunakan pendekatan neural network sederhana untuk mempelajari hubungan antara user dan film. Langkah-langkahnya:
+
+- Melakukan encoding terhadap `userId` dan `movieId` menjadi indeks numerik.
+- Membagi data menjadi **training dan validation set**.
+- Membangun arsitektur **embedding layer** untuk user dan film.
+- Menggunakan **dot product** dari embedding sebagai prediksi rating.
+- Melatih model menggunakan *Mean Squared Error (MSE)* dan mengevaluasi dengan *Root Mean Squared Error (RMSE)*.
+
+Model ini dikenal sebagai **RecommenderNet** dan mampu menangkap representasi laten dari user dan film, memberikan hasil yang lebih fleksibel dan akurat dalam jangka panjang, terutama untuk dataset yang besar.
+
+---
+
+Kedua model ini akan dibandingkan pada tahap evaluasi untuk melihat mana yang lebih optimal dalam memberikan rekomendasi personalized.
+
+
+#### **Train the Model**
+
+Proses training dilakukan dengan memanggil dua fungsi utama:
+
+- `build_cf_memory()` untuk membuat model Memory-Based Collaborative Filtering. Fungsi ini membentuk user-item matrix dan menghitung similarity antar item.
+- `build_cf_recommendernet()` untuk melatih model neural network sederhana (RecommenderNet) berbasis embedding. Model ini dilatih menggunakan data rating user untuk mempelajari representasi laten dari user dan film.
+
+Kedua model ini selanjutnya siap dievaluasi dan digunakan untuk menghasilkan rekomendasi personalized.
+
+
+## **Model Evaluation**
+
+### **Content Based Evaluation**
+
+Evaluasi model Content-Based Filtering dilakukan dengan sanity check, yaitu dengan memeriksa apakah rekomendasi yang dihasilkan secara konten memang relevan dengan film acuan.
+Sebagai contoh, untuk film Beauty and the Beast, sistem merekomendasikan film dengan genre dan tema yang serupa, seperti Cinderella atau The Little Mermaid, yang menunjukkan bahwa model bekerja dengan baik dalam mengenali kesamaan konten.
 
 Langkah-langkah evaluasinya:
 1. **Ambil user sample** (misalnya `user_id = 45`) dan cari film yang mereka beri rating tinggi (≥ 4.0).
@@ -653,70 +806,7 @@ Secara keseluruhan, hasil ini menunjukkan bahwa **model content-based dapat memb
 **Sehingga model yang digunakan yaitu TF-IDF Vectorized**
 
 
-### **Collaborative Filtering**
-
-Collaborative Filtering (CF) adalah pendekatan sistem rekomendasi yang berdasarkan pada pola interaksi pengguna terhadap item, bukan pada konten dari item itu sendiri. Dalam konteks proyek ini, CF memanfaatkan **data rating dari user terhadap film** untuk mempelajari pola preferensi yang serupa antar pengguna atau antar film.
-
-Ide utamanya: *"Jika dua user menyukai film yang sama, maka mereka cenderung akan menyukai film lainnya yang juga disukai oleh user dengan preferensi serupa."*
-
-CF sangat efektif untuk menghasilkan rekomendasi **personalized** karena benar-benar didasarkan pada kebiasaan dan interaksi nyata dari pengguna. Namun, pendekatan ini juga memiliki tantangan seperti:
-- *Cold-start problem* untuk user baru tanpa histori rating
-- *Sparsity problem* karena kebanyakan user hanya memberi rating ke sedikit film
-
-Dalam proyek ini, dua pendekatan CF akan digunakan:
-1. **Memory-Based Collaborative Filtering** – Menghitung kesamaan antar item berdasarkan user-item matrix.
-2. **Model-Based Collaborative Filtering** dengan neural network sederhana (*RecommenderNet*).
-
-Keduanya akan dibandingkan dari sisi hasil rekomendasi dan performa metrik.
-
-
-#### **Model Building**
-
-Pada Collaborative Filtering, kita membangun dua jenis model berdasarkan data rating antar user dan film:
-
----
-
-**1. Memory-Based Collaborative Filtering**
-
-Pendekatan ini menggunakan **item-item similarity** berdasarkan pola rating yang diberikan oleh user. Langkah-langkah utamanya:
-
-- Membuat **user-item matrix** dari data rating.
-- Mengubahnya menjadi matriks sparse (`csr_matrix`) untuk efisiensi komputasi.
-- Menghitung **cosine similarity** antar film berdasarkan rating user.
-- Mengembangkan fungsi `get_recs_memory()` untuk memberikan rekomendasi film kepada user berdasarkan rating tinggi dari film serupa yang pernah ditonton.
-
-Pendekatan ini mudah diimplementasikan dan tidak memerlukan proses training model, tetapi bisa terkena masalah sparsity jika banyak film belum memiliki cukup rating.
-
----
-
-**2. Model-Based Collaborative Filtering (RecommenderNet)**
-
-Model ini menggunakan pendekatan neural network sederhana untuk mempelajari hubungan antara user dan film. Langkah-langkahnya:
-
-- Melakukan encoding terhadap `userId` dan `movieId` menjadi indeks numerik.
-- Membagi data menjadi **training dan validation set**.
-- Membangun arsitektur **embedding layer** untuk user dan film.
-- Menggunakan **dot product** dari embedding sebagai prediksi rating.
-- Melatih model menggunakan *Mean Squared Error (MSE)* dan mengevaluasi dengan *Root Mean Squared Error (RMSE)*.
-
-Model ini dikenal sebagai **RecommenderNet** dan mampu menangkap representasi laten dari user dan film, memberikan hasil yang lebih fleksibel dan akurat dalam jangka panjang, terutama untuk dataset yang besar.
-
----
-
-Kedua model ini akan dibandingkan pada tahap evaluasi untuk melihat mana yang lebih optimal dalam memberikan rekomendasi personalized.
-
-
-#### **Train the Model**
-
-Proses training dilakukan dengan memanggil dua fungsi utama:
-
-- `build_cf_memory()` untuk membuat model Memory-Based Collaborative Filtering. Fungsi ini membentuk user-item matrix dan menghitung similarity antar item.
-- `build_cf_recommendernet()` untuk melatih model neural network sederhana (RecommenderNet) berbasis embedding. Model ini dilatih menggunakan data rating user untuk mempelajari representasi laten dari user dan film.
-
-Kedua model ini selanjutnya siap dievaluasi dan digunakan untuk menghasilkan rekomendasi personalized.
-
-
-#### **Model Evaluation**
+### **Collaborative Filtering Evaluation**
 
 Evaluasi model Collaborative Filtering dilakukan dengan menggunakan metrik **Root Mean Squared Error (RMSE)**, yang mengukur seberapa dekat prediksi model terhadap rating aktual dari user.
 
