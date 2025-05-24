@@ -1069,10 +1069,9 @@ Model yang dibangun:
 
 **Final Insight**
 
-- Terbentuknya sistem rekomendasi yang dapat membantu user dalam mendapatkan rekomendasi film yang sesuai dengan preferensinya.
-- **CBF cocok untuk user baru**, karena tidak membutuhkan histori rating.
-- **CF cocok untuk user aktif**, karena dapat memberikan rekomendasi yang lebih personal.
+- Model yang dibangun pada proyek ini—**Content-Based Filtering** dan **Collaborative Filtering**—secara langsung mendukung tujuan bisnis dalam membantu user menemukan film yang sesuai dengan preferensinya di tengah banyaknya pilihan film yang tersedia.
+- **CBF cocok untuk user baru**, karena tidak membutuhkan histori rating. **CBF** memberikan solusi untuk **user baru (cold-start problem)** dengan menggunakan informasi konten film. Model ini mampu memberikan rekomendasi bahkan saat histori interaksi masih terbatas.
+- **CF cocok untuk user aktif**, karena dapat memberikan rekomendasi yang lebih personal. **CF** memberikan rekomendasi yang lebih personal untuk **user aktif**, memanfaatkan pola interaksi dan histori rating yang sudah ada.
 - Kombinasi keduanya dapat menjadi fondasi untuk **hybrid recommendation system** di masa depan.
 
-
-Sistem rekomendasi yang telah dibangun membuktikan bahwa pendekatan machine learning dapat secara efektif membantu user menemukan film yang sesuai dengan preferensi mereka.
+Sistem rekomendasi yang telah dibangun, membuktikan bahwa pendekatan machine learning berhasil menjawab problem statement, mencapai goals, dan membuktikan bahwa **machine learning mampu memberikan solusi nyata untuk permasalahan rekomendasi film**.
