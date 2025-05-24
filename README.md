@@ -15,8 +15,7 @@ Proyek ini mengeksplorasi dua pendekatan utama:
 **Project Highlight**
 - Melakukan **preprocessing dan rekayasa fitur** dari data metadata film, rating pengguna, dan keywords.
 - Membangun beberapa model rekomendasi dan mengevaluasi performanya menggunakan **RMSE** serta interpretasi kualitas rekomendasi.
-- Menunjukkan bahwa **CBF efektif dalam menemukan film yang mirip secara tema**, sedangkan **Memory-Based CF unggul dalam memberikan rekomendasi yang personalized**.
-- **RecommenderNet** memiliki potensi untuk dikembangkan lebih lanjut, meskipun pada kondisi saat ini performanya masih perlu ditingkatkan.
+- Menunjukkan bahwa **Content-Based Filtering dengan algoritma CountVectorizer efektif dalam menemukan film yang mirip secara tema**, sedangkan **Memory-Based Collaborative Filtering unggul dalam memberikan rekomendasi yang personalized**.
 
 ID Dicoding: harisyafie
 
@@ -306,12 +305,14 @@ EDA dilakukan secara terpisah untuk tiap dataset sebagai berikut:
 - **Visualisasi Word Cloud:**  
   Membuat visualisasi cloud untuk menggambarkan frekuensi kata secara visual dan menarik.
 
----
-
 EDA ini bertujuan memberikan insight awal untuk membantu proses data preparation dan pemodelan sistem rekomendasi film ke depannya.
 
 #### **1. Movies Metadata Dataset**
+
+---
+
 **Visualisasi Genre Populer:**  
+
   Menggunakan bar chart untuk menampilkan genre film yang paling sering muncul. Langkah ini bertujuan untuk mengetahui genre film yang paling sering muncul dalam dataset.
 
 - Data genre diekstrak dari kolom `genres` yang berupa string list dictionary.
@@ -337,7 +338,11 @@ Insight ini dapat membantu dalam memahami tren dominan dalam industri film, sert
 
 
 #### **2. Rating Dataset**
-- **Statistik Deskriptif:**  
+
+---
+
+- **Statistik Deskriptif:**
+  
   Menghitung nilai minimum, maksimum, mean, dan distribusi rating.
   
 Berikut adalah statistik deskriptif dari kolom `rating` yang diberikan oleh pengguna terhadap film:
@@ -355,6 +360,7 @@ Berikut adalah statistik deskriptif dari kolom `rating` yang diberikan oleh peng
 
 - **Interpretasi Statistik Deskriptif `rating`**
 
+
 Berdasarkan hasil statistik deskriptif:
 
 - Jumlah data rating: **100.004** entri.
@@ -368,11 +374,14 @@ User cenderung memberikan rating yang positif terhadap film yang mereka tonton. 
 
 
 - **Visualisasi Distribusi Rating:**  
+
+
   Membuat histogram untuk melihat persebaran nilai rating yang diberikan oleh user.
 
   ![Distribusi Rating](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/distribution_rating.png)
 
 **Interpretasi Histogram Rating Film**
+
 
 Visualisasi menunjukkan distribusi diskret rating yang diberikan user terhadap film:
 
@@ -382,11 +391,16 @@ Visualisasi menunjukkan distribusi diskret rating yang diberikan user terhadap f
 - Distribusi bersifat **right-skewed** (condong ke kanan), mencerminkan adanya **bias positif** dalam penilaian pengguna terhadap film.
 
 **Insight:**  
+
 Kecenderungan rating yang tinggi ini perlu diperhatikan dalam model rekomendasi, karena bisa menyebabkan overfitting terhadap film yang populer atau banyak dinilai positif.
 
 
 #### **3. Links Dataset**
-- **Analisis ID Unik:**  
+
+---
+
+- **Analisis ID Unik:**
+  
   Mengecek keberagaman dan kelengkapan ID film dari berbagai sumber (IMDb, TMDb, dll).
 Berikut adalah ringkasan informasi terkait jumlah ID unik dan nilai yang hilang pada dataset `links_small.csv`:
 
@@ -415,9 +429,13 @@ Namun, **13 baris dengan `tmdbId` yang hilang perlu ditangani** sebelum dilakuka
 
 
 #### **4. Keywords Dataset**
+
+---
+
 Langkah ini bertujuan untuk menganalisis kata kunci (`keywords`) yang digunakan untuk mendeskripsikan film dalam dataset.
 
 **Proses**:
+
 - Kolom `keywords` berisi string list dari dictionary, sehingga perlu diekstrak menjadi list kata kunci menggunakan fungsi `extract_keywords`.
 - Data kemudian di-*explode* agar setiap baris hanya berisi satu keyword untuk mempermudah analisis frekuensi.
 - Dilakukan dua bentuk visualisasi:
@@ -426,6 +444,8 @@ Langkah ini bertujuan untuk menganalisis kata kunci (`keywords`) yang digunakan 
  
 
 **Top 20 Keywords Film**
+
+---
 
 ![Top 20 Keywords](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/top_20_keywords.png)
 
@@ -440,7 +460,10 @@ Grafik menunjukkan 20 kata kunci (`keywords`) yang paling sering muncul dalam de
 - Kehadiran keyword seperti **"sequel"** dan **"duringcreditsstinger"** juga menandakan banyaknya film berformat waralaba atau cinematic universe.
 
 **Insight:**  
+
 Keyword memberi gambaran yang cukup kuat terhadap **tema, tone, dan gaya produksi** dari film. Hal ini sangat berguna sebagai fitur konten dalam sistem rekomendasi berbasis content, terutama ketika digabungkan dengan metadata lain seperti genre dan overview.
+
+---
 
 **Wordcloud**
 
@@ -455,6 +478,7 @@ Word cloud memberikan gambaran visual terhadap kata kunci yang paling sering dig
 - Kata-kata yang berkaitan dengan genre, gaya produksi, dan situasi juga terlihat, seperti *biography*, *high school*, *war*, *nudity*, *martial arts*, dan *escape*.
 
 **Insight:**
+
 - Word cloud ini menunjukkan **keragaman tema dan karakteristik film** dalam dataset.
 - Keyword seperti ini sangat berguna dalam sistem rekomendasi berbasis konten (content-based), karena bisa mencerminkan kesamaan makna antar film yang tidak bisa dilihat hanya dari genre atau rating saja.
 
@@ -465,7 +489,6 @@ Word cloud ini juga memudahkan identifikasi **tema-tema dominan dan tren cerita*
 
 Tahap *Data Preparation* bertujuan untuk membersihkan dan mengolah data agar siap digunakan dalam proses modeling sistem rekomendasi. Berdasarkan alur kode, proses ini terdiri dari empat tahap utama:
 
----
 
 1. Data Cleaning
 2. Sanity Check
@@ -509,6 +532,7 @@ Tahap ini memastikan bahwa hasil *cleaning* berjalan dengan benar. Beberapa vali
 
 Jika ada keanehan seperti tipe data tidak sesuai atau genre tak dikenal, proses akan dihentikan melalui `assert`.
 
+---
 
 ### **Merge Datasets**
 
@@ -544,12 +568,14 @@ Collaborative Filtering Feature Dataset: (100004, 3)
 
 ![CF Dataset](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/cf_ratings_dataset.png)
 
+---
 
 ### **Feature Extraction for Content Based Filtering**
 
 Untuk membangun model Content-Based Filtering, diperlukan representasi numerik dari data teks (judul, genre, overview, keywords). Oleh karena itu, dilakukan proses ekstraksi fitur teks menggunakan dua pendekatan:
 
 #### TF-IDF Vectorization
+
 TF-IDF (Term Frequency - Inverse Document Frequency) adalah teknik untuk merepresentasikan teks sebagai vektor numerik berdasarkan seberapa penting suatu kata dalam suatu dokumen relatif terhadap keseluruhan korpus. Tujuannya adalah untuk menurunkan bobot kata-kata umum yang sering muncul di banyak dokumen (seperti "the", "and") dan menaikkan bobot kata-kata yang lebih unik dalam dokumen tertentu.
 
 ```python
@@ -566,6 +592,7 @@ Parameter yang digunakan
 TF-IDF cocok digunakan untuk mencari kata-kata yang paling relevan secara kontekstual dalam dokumen.
 
 #### Count Vectorization
+
 Count Vectorizer mengubah kumpulan dokumen teks menjadi matriks frekuensi kata. Setiap kata unik menjadi fitur, dan nilainya adalah berapa kali kata tersebut muncul dalam dokumen.
 
 ```python
@@ -591,6 +618,8 @@ Selain membangun model, tahap ini juga mencakup proses evaluasi untuk membanding
 
 ### **Content Based Filtering**
 
+---
+
 Content-Based Filtering (CBF) adalah pendekatan rekomendasi yang berfokus pada karakteristik konten dari setiap item. Dalam konteks ini, kita menggunakan informasi dari film seperti **judul**, **kata kunci (keywords)**, dan **genre** untuk menentukan kemiripan antar film. Ide dasarnya: jika user menyukai sebuah film, maka mereka kemungkinan juga akan menyukai film lain yang memiliki konten serupa.
 
 Pendekatan ini tidak memerlukan data dari user lain dan bisa bekerja dengan baik bahkan ketika user baru hanya menyukai satu atau dua film — cocok untuk mengatasi masalah *cold-start* pada user.
@@ -605,6 +634,8 @@ Dengan dua pendekatan ini, kita bisa melihat perbedaan cara model memahami "kemi
 
 
 #### **Model Building**
+
+---
 
 Pada tahap ini, model content-based dibangun dengan cara menggabungkan beberapa fitur penting dari setiap film, yaitu:
 - **Judul film (`title`)**
@@ -626,6 +657,8 @@ Model yang dihasilkan bersifat fleksibel karena dapat diganti-ganti jenis vector
 
 #### **Model Computation**
 
+---
+
 Setelah proses pembangunan model disiapkan, tahap selanjutnya adalah melakukan komputasi vektor dan matriks kesamaan antar film. Di bagian ini, dua model content-based dikonstruksi menggunakan pendekatan berbeda untuk vectorization:
 
 - **TF-IDF Vectorizer**  
@@ -644,6 +677,8 @@ Kedua model ini siap digunakan untuk menghitung kesamaan antar film dan menghasi
 
 #### **Content Based Filtering Recommendation**
 
+---
+
 Pada bagian ini, sistem akan memberikan **Top-N rekomendasi film** berdasarkan kemiripan konten dengan film yang menjadi referensi. Pendekatan yang digunakan adalah:
 
 Fungsi `recommend_cb()` digunakan untuk:
@@ -660,9 +695,13 @@ recommend_cb("The Matrix")
 
 **Interpretation – Content-Based Recommendation (TF-IDF)**
 
+---
+
 Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendekatan **TF-IDF + Cosine Similarity**, berdasarkan film referensi: **"The Matrix"**.
 
 **Insight dari Rekomendasi:**
+
+---
 
 - Film-film yang direkomendasikan memiliki kemiripan genre yang kuat dengan *The Matrix*, yaitu dominasi elemen **Action**, **Thriller**, dan **Science Fiction**.
 - Beberapa judul seperti:
@@ -672,10 +711,14 @@ Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendeka
 
 **Skor Similarity:**
 
+---
+
 - Skor tertinggi dicapai oleh *The Matrix Reloaded* (0.359), diikuti *The Matrix Revolutions* (0.290), yang masuk akal mengingat keterkaitannya dalam waralaba.
 - Skor similarity menurun secara bertahap, menandakan model mampu memprioritaskan film dengan kesamaan konten lebih tinggi terlebih dahulu.
 
 **Kesimpulan:**
+
+---
 
 Model berhasil memberikan rekomendasi yang **relevan secara tematik dan genre**, dan mampu mengenali hubungan konten baik eksplisit (franchise) maupun implisit (tema dan nuansa). Ini membuktikan bahwa pendekatan content-based dapat memberikan saran yang akurat meskipun hanya bermodal satu film sebagai referensi.
 
@@ -683,6 +726,8 @@ Model berhasil memberikan rekomendasi yang **relevan secara tematik dan genre**,
 ![recommendation_result_cbf_count](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/recommendation_result_cbf_count.png)
 
 **Interpretation – Content-Based Recommendation (CountVectorizer)**
+
+---
 
 Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendekatan **CountVectorizer + Cosine Similarity**, berdasarkan film referensi: **"The Matrix"**.
 
@@ -697,7 +742,7 @@ Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendeka
 
 Hasil ini menunjukkan bahwa **CBF dengan CountVectorizer** cukup efektif untuk menemukan film dengan tema serupa, terutama jika didukung oleh kata kunci dan genre yang kuat. Namun, model ini mungkin **kurang sensitif terhadap konteks cerita atau makna yang lebih mendalam**, karena hanya mengandalkan frekuensi kata tanpa mempertimbangkan bobot kata seperti pada TF-IDF.
 
-
+---
 
 ### **Collaborative Filtering**
 
@@ -720,9 +765,9 @@ Keduanya akan dibandingkan dari sisi hasil rekomendasi dan performa metrik.
 
 Pada Collaborative Filtering, kita membangun dua jenis model berdasarkan data rating antar user dan film:
 
----
+##### **1. Memory-Based Collaborative Filtering**
 
-**1. Memory-Based Collaborative Filtering**
+---
 
 Pendekatan ini menggunakan **item-item similarity** berdasarkan pola rating yang diberikan oleh user. Langkah-langkah utamanya:
 
@@ -733,9 +778,9 @@ Pendekatan ini menggunakan **item-item similarity** berdasarkan pola rating yang
 
 Pendekatan ini mudah diimplementasikan dan tidak memerlukan proses training model, tetapi bisa terkena masalah sparsity jika banyak film belum memiliki cukup rating.
 
----
+###### **2. Model-Based Collaborative Filtering (RecommenderNet)**
 
-**2. Model-Based Collaborative Filtering (RecommenderNet)**
+---
 
 Model ini menggunakan pendekatan neural network sederhana untuk mempelajari hubungan antara user dan film. Langkah-langkahnya:
 
@@ -747,12 +792,11 @@ Model ini menggunakan pendekatan neural network sederhana untuk mempelajari hubu
 
 Model ini dikenal sebagai **RecommenderNet** dan mampu menangkap representasi laten dari user dan film, memberikan hasil yang lebih fleksibel dan akurat dalam jangka panjang, terutama untuk dataset yang besar.
 
----
-
 Kedua model ini akan dibandingkan pada tahap evaluasi untuk melihat mana yang lebih optimal dalam memberikan rekomendasi personalized.
 
-
 #### **Train the Model**
+
+---
 
 Proses training dilakukan dengan memanggil dua fungsi utama:
 
@@ -763,6 +807,8 @@ Kedua model ini selanjutnya siap dievaluasi dan digunakan untuk menghasilkan rek
 
 
 ### **Collaborative Filtering Recommendation**
+
+---
 
 Pada bagian ini, sistem memberikan **Top-N rekomendasi film secara personalized** untuk user tertentu menggunakan pendekatan Collaborative Filtering
 
@@ -797,6 +843,7 @@ recommend_cf(user_id=45, model_fn=get_recs_memory)
 | 9    | 2692    | Run Lola Run             | Action Drama Thriller                | 4.5    |
 | 10   | 1199    | Brazil                   | Comedy Science Fiction               | 4.0    |
 
+---
 
 **Rekomendasi Film Berdasarkan Collaborative Filtering (Memory-Based) untuk User 45**
 
@@ -942,6 +989,8 @@ _**Catatan**_
 
 **Interpretasi Hasil Evaluasi Content-Based Filtering**
 
+---
+
 **Hasil Evaluasi**
 
 | Metric     | TF-IDF     | CountVector |
@@ -949,7 +998,10 @@ _**Catatan**_
 | avg_top10  | 0.1551     | 0.4305     |
 | var_top10  | 0.0021     | 0.0020     |
 
+
 **Analisis**
+
+---
 
 1. **Avg Top 10 Similarity (avg_top10)**:
    - Nilai **avg_top10** untuk model **CountVectorizer (0.4305)** jauh lebih tinggi dibandingkan model **TF-IDF (0.1551)**.
@@ -962,11 +1014,15 @@ _**Catatan**_
 
 **Insight**
 
+---
+
 - Model **CountVectorizer** cenderung memberikan skor similarity yang **lebih tinggi secara keseluruhan**, sehingga film-film terlihat lebih saling mirip. Ini bisa membuat rekomendasi menjadi **kurang spesifik** karena cenderung menganggap banyak film sebagai mirip.
 - Sementara model **TF-IDF** menghasilkan skor similarity yang **lebih rendah**, yang artinya model ini lebih **selektif** dalam menentukan kemiripan antar film. Hal ini bisa lebih cocok jika ingin rekomendasi yang lebih "tajam" dan tidak terlalu general.
 - Variansi rendah pada kedua model menunjukkan **konsistensi** hasil, jadi meskipun nilai skor berbeda, distribusi similarity antar film tetap cukup stabil.
 
 **Kesimpulan**
+
+---
 
 - Model terbaik yang diperoleh dari hasil training pada proyek ini yaitu model **CountVectorizer**
 
@@ -1000,6 +1056,8 @@ Akhirnya, kedua nilai RMSE dibandingkan secara visual menggunakan bar chart sede
 
 **Interpretation – RecommenderNet RMSE Curve**
 
+---
+
 Grafik di atas menunjukkan nilai **Root Mean Squared Error (RMSE)** pada data training dan validation selama 10 epoch pelatihan model RecommenderNet.
 
 Berikut insight yang dapat diperoleh dari grafik tersebut:
@@ -1028,10 +1086,14 @@ Grafik di atas membandingkan performa dua model Collaborative Filtering berdasar
 
 **Interpretasi:**
 
+---
+
 - **Memory-Based Collaborative Filtering** memiliki performa yang jauh lebih baik berdasarkan metrik RMSE. Nilai 0.931 menunjukkan bahwa prediksi rating yang dihasilkan cukup dekat dengan rating aktual user.
 - **RecommenderNet**, meskipun menggunakan pendekatan neural network yang lebih kompleks, menghasilkan RMSE yang lebih tinggi (2.781), yang mengindikasikan bahwa prediksi ratingnya masih cukup meleset dibandingkan dengan metode memory-based.
 
 **Insight:**
+
+---
 
 - Performa RecommenderNet kemungkinan besar bisa ditingkatkan dengan:
   - Pelatihan yang lebih panjang (lebih banyak epoch)
