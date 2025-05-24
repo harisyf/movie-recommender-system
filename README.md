@@ -908,27 +908,18 @@ Evaluasi ini bertujuan untuk memahami bagaimana model CBF menangkap hubungan ant
 
 Misalkan:
 - $N$ = jumlah film
-- $s_{ik}$ = skor similarity film ke-$i$ dengan film ke-$k$ dalam Top-10
+- $s_{ik}$ = skor similarity film ke-i dengan film ke-k dalam Top-10
 
 Rumus perhitungan per film:
 
-$$
-\mathrm{avg\_top10}_i = \frac{1}{10}\sum_{k=1}^{10} s_{ik}
-$$
+![formula_avg_topn](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/formula_avg_topn.png)
 
-$$
-\mathrm{var\_top10}_i = \frac{1}{10}\sum_{k=1}^{10} \bigl(s_{ik} - \mathrm{avg\_top10}_i\bigr)^2
-$$
+![formula_var_topn](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/formula_var_topn.png)
+
 
 Rata-rata keseluruhan model:
 
-$$
-\mathrm{avg\_top10}_{\mathrm{model}} = \frac{1}{N}\sum_{i=1}^{N} \mathrm{avg\_top10}_i
-$$
-
-$$
-\mathrm{var\_top10}_{\mathrm{model}} = \frac{1}{N}\sum_{i=1}^{N} \mathrm{var\_top10}_i
-$$
+![formula_avg_var_topn](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/formula_avg_var_topn.png)
 
 
 Hasil evaluasi akan memberikan insight apakah model berhasil mengelompokkan film-film yang serupa dengan baik (**avg_topN tinggi dan var_topN rendah diharapkan untuk model yang baik**).
