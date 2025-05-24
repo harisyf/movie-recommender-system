@@ -40,19 +40,18 @@ Email: yafie345@gmail.com
   - [Merge Datasets](#merge-datasets)
   - [Final Feature Dataset](#final-feature-dataset)
   - [Feature Extraction for Content Based Filtering](#feature-extraction-for-content-based-filtering)
-- [Model Development](#model-development)
+- [Modelling](#modelling)
   - [1. Content Based Filtering](#content-based-filtering)
      - [Model Building](#model-building)
      - [Model Computation](#model-computation)
+     - [Content Based Filtering Recommendation](#content-based-filtering-recommendation)
   - [2. Collaborative Filtering](#collaborative-filtering)
      - [Model Building](#model-building)
      - [Train the Model](#train-the-model)
+     - [Collaborative Filtering Recommendation](#collaborative-filtering-recommendation)
 - [Model Evaluation](#model-evaluation)
   - [1. Content Based Filtering Evaluation](#content-based-filtering-evaluation)
   - [2. Collaborative Filtering Evaluation](#collaborative-filtering-evaluation)
-- [Recommendation Result](#recommendation-result)
-  - [1. Content Based Filtering Recommendation](#content-based-filtering-recommendation)
-  - [2. Collaborative Filtering Recommendation](#collaborative-filtering-recommendation)
 - [Kesimpulan](#kesimpulan)
 
 
@@ -174,7 +173,7 @@ Dataset yang digunakan terdiri dari beberapa file CSV yang saling terkait:
 
    ![Rating](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/rating_dataset.png)
 
-   | Variabel   | Deskripsi                                                     |
+| Variabel   | Deskripsi                                                     |
 |------------|---------------------------------------------------------------|
 | `userId`   | ID unik pengguna                                              |
 | `movieId`  | ID unik film dari MovieLens                                   |
@@ -594,7 +593,16 @@ Selain membangun model, tahap ini juga mencakup proses evaluasi untuk membanding
 
 Content-Based Filtering (CBF) adalah pendekatan rekomendasi yang berfokus pada karakteristik konten dari setiap item. Dalam konteks ini, kita menggunakan informasi dari film seperti **judul**, **kata kunci (keywords)**, dan **genre** untuk menentukan kemiripan antar film. Ide dasarnya: jika user menyukai sebuah film, maka mereka kemungkinan juga akan menyukai film lain yang memiliki konten serupa.
 
-Pendekatan ini tidak memerlukan data dari user lain dan bisa bekerja dengan baik bahkan ketika user baru hanya menyukai satu atau dua film — cocok untuk mengatasi masalah *cold-start* pada user. Di bagian ini, kita akan membangun dua model content-based dengan teknik vektorisasi berbeda, lalu membandingkan hasil rekomendasinya.
+Pendekatan ini tidak memerlukan data dari user lain dan bisa bekerja dengan baik bahkan ketika user baru hanya menyukai satu atau dua film — cocok untuk mengatasi masalah *cold-start* pada user.
+
+Di bagian ini, kita akan membangun dua model content-based dengan teknik vektorisasi berbeda, lalu membandingkan hasil rekomendasinya:
+
+- **TF-IDF (Term Frequency - Inverse Document Frequency)**: Menghitung bobot penting dari sebuah kata dalam sebuah dokumen (film) dibandingkan seluruh kumpulan dokumen. Kata yang sering muncul di film tertentu tapi jarang muncul di film lain akan mendapatkan bobot lebih tinggi. TF-IDF membantu menangkap kata kunci yang lebih "unik" untuk membedakan antar film.
+
+- **CountVectorizer**: Menghitung frekuensi kemunculan kata dalam setiap dokumen (film) tanpa mempertimbangkan seberapa umum kata tersebut di seluruh dokumen. Model ini lebih sederhana dan cepat, tetapi cenderung menghasilkan skor kemiripan yang lebih besar karena semua kata dihitung sama pentingnya.
+
+Dengan dua pendekatan ini, kita bisa melihat perbedaan cara model memahami "kemiripan" antar film: **TF-IDF lebih selektif**, sementara **CountVectorizer lebih luas** dalam menghubungkan film.
+
 
 #### **Model Building**
 
@@ -632,6 +640,63 @@ Masing-masing vectorizer dimasukkan ke dalam fungsi `_build_cb_model()` untuk me
 - `get_recs_count` → model berbasis CountVectorizer
 
 Kedua model ini siap digunakan untuk menghitung kesamaan antar film dan menghasilkan rekomendasi berbasis konten yang berbeda gaya pendekatannya.
+
+
+#### **Content Based Filtering Recommendation**
+
+Pada bagian ini, sistem akan memberikan **Top-N rekomendasi film** berdasarkan kemiripan konten dengan film yang menjadi referensi. Pendekatan yang digunakan adalah:
+
+Fungsi `recommend_cb()` digunakan untuk:
+1. Mengambil film referensi berdasarkan judul input.
+2. Menggunakan model content-based untuk mencari film yang mirip secara konten (judul, keyword, genre).
+3. Mengembalikan rekomendasi Top-N film dengan skor similarity tertinggi, disertai informasi genre.
+
+Contoh penggunaannya:
+```python
+recommend_cb("The Matrix")
+```
+
+![recommendation_result_cbf](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/recommendation_result_cbf.png)
+
+**Interpretation – Content-Based Recommendation (TF-IDF)**
+
+Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendekatan **TF-IDF + Cosine Similarity**, berdasarkan film referensi: **"The Matrix"**.
+
+**Insight dari Rekomendasi:**
+
+- Film-film yang direkomendasikan memiliki kemiripan genre yang kuat dengan *The Matrix*, yaitu dominasi elemen **Action**, **Thriller**, dan **Science Fiction**.
+- Beberapa judul seperti:
+  - *The Matrix Reloaded* dan *The Matrix Revolutions* — adalah sekuel langsung dari film aslinya, sehingga kemiripannya sangat tinggi secara konten.
+  - *Terminator 3*, *I, Robot*, dan *Ghost in the Shell* — mengangkat tema futuristik, kecerdasan buatan, dan perlawanan terhadap sistem, selaras dengan nuansa *The Matrix*.
+- Genre yang paling sering muncul di daftar adalah **Science Fiction**, menunjukkan bahwa model berhasil menangkap genre inti dari film referensi.
+
+**Skor Similarity:**
+
+- Skor tertinggi dicapai oleh *The Matrix Reloaded* (0.359), diikuti *The Matrix Revolutions* (0.290), yang masuk akal mengingat keterkaitannya dalam waralaba.
+- Skor similarity menurun secara bertahap, menandakan model mampu memprioritaskan film dengan kesamaan konten lebih tinggi terlebih dahulu.
+
+**Kesimpulan:**
+
+Model berhasil memberikan rekomendasi yang **relevan secara tematik dan genre**, dan mampu mengenali hubungan konten baik eksplisit (franchise) maupun implisit (tema dan nuansa). Ini membuktikan bahwa pendekatan content-based dapat memberikan saran yang akurat meskipun hanya bermodal satu film sebagai referensi.
+
+
+![recommendation_result_cbf_count](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/recommendation_result_cbf_count.png)
+
+**Interpretation – Content-Based Recommendation (CountVectorizer)**
+
+Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendekatan **CountVectorizer + Cosine Similarity**, berdasarkan film referensi: **"The Matrix"**.
+
+**Interpretasi**
+
+- **Rekomendasi teratas adalah film sekuel dari The Matrix**, yaitu **The Matrix Reloaded** dan **The Matrix Revolutions**. Ini menunjukkan bahwa model CountVectorizer berhasil mendeteksi koneksi langsung dalam serial film dengan konten yang sangat mirip (genre, kata kunci, dan judul yang terkait erat).
+- **Film lain yang muncul di rekomendasi** juga memiliki tema **futuristik, aksi, thriller, dan science fiction**. Misalnya, *Ghost in the Shell*, *Tron*, dan *eXistenZ* yang sama-sama mengangkat isu-isu futuristik, teknologi, dan realitas virtual, serupa dengan tema utama di *The Matrix*.
+- **Skor similarity** di atas **0.3** menunjukkan tingkat kemiripan yang cukup signifikan dalam konteks genre dan topik cerita, meskipun tentu saja pengalaman menonton bisa berbeda tergantung selera individu.
+- **CountVectorizer cenderung menekankan frekuensi kata** dalam data, sehingga hasil ini lebih mencerminkan koneksi kata-kata umum di judul/genre/keywords daripada konteks narasi yang lebih dalam.
+
+**Insight**
+
+Hasil ini menunjukkan bahwa **CBF dengan CountVectorizer** cukup efektif untuk menemukan film dengan tema serupa, terutama jika didukung oleh kata kunci dan genre yang kuat. Namun, model ini mungkin **kurang sensitif terhadap konteks cerita atau makna yang lebih mendalam**, karena hanya mengandalkan frekuensi kata tanpa mempertimbangkan bobot kata seperti pada TF-IDF.
+
 
 
 ### **Collaborative Filtering**
@@ -697,114 +762,225 @@ Proses training dilakukan dengan memanggil dua fungsi utama:
 Kedua model ini selanjutnya siap dievaluasi dan digunakan untuk menghasilkan rekomendasi personalized.
 
 
+### **Collaborative Filtering Recommendation**
+
+Pada bagian ini, sistem memberikan **Top-N rekomendasi film secara personalized** untuk user tertentu menggunakan pendekatan Collaborative Filtering
+
+Fungsi `recommend_cf()` bekerja dengan dua output utama:
+1. **Top-N rekomendasi film** untuk user berdasarkan pola rating terhadap film serupa.
+2. **Daftar film yang sebelumnya disukai user** (rating ≥ threshold), sebagai perbandingan relevansi.
+
+Parameter yang digunakan:
+- `user_id`: ID pengguna target
+- `top_n`: jumlah film yang direkomendasikan
+- `threshold`: batas minimal rating yang dianggap “disukai” user (default: 4.0)
+
+Fungsi ini berguna untuk mengevaluasi apakah model berhasil memberikan rekomendasi yang sesuai dengan selera pengguna berdasarkan histori interaksinya.
+
+Contoh penggunaannya:
+```python
+recommend_cf(user_id=45, model_fn=get_recs_memory)
+```
+
+**Film yang pernah dirating tinggi oleh User ID 45:**
+
+| Rank | movieId | Title                   | Genres                               | Rating |
+|------|---------|--------------------------|--------------------------------------|--------|
+| 1    | 903     | Vertigo                  | Mystery Romance Thriller             | 5.0    |
+| 2    | 26151   | Au Hasard Balthazar      | Drama                                | 5.0    |
+| 3    | 7064    | Beauty and the Beast     | Drama Fantasy Romance                | 5.0    |
+| 4    | 1673    | Boogie Nights            | Drama                                | 4.5    |
+| 5    | 1333    | The Birds                | Horror                               | 4.5    |
+| 6    | 3307    | City Lights              | Comedy Drama Romance                 | 4.5    |
+| 7    | 3160    | Magnolia                 | Drama                                | 4.5    |
+| 8    | 1748    | Dark City                | Mystery Science Fiction              | 4.5    |
+| 9    | 2692    | Run Lola Run             | Action Drama Thriller                | 4.5    |
+| 10   | 1199    | Brazil                   | Comedy Science Fiction               | 4.0    |
+
+
+**Rekomendasi Film Berdasarkan Collaborative Filtering (Memory-Based) untuk User 45**
+
+Berikut adalah hasil rekomendasi film untuk **User 45** berdasarkan model **Collaborative Filtering (Memory-Based)**. Model ini memberikan rekomendasi dengan mencari kemiripan pola rating antar pengguna (user-user similarity), tanpa melihat konten film itu sendiri.
+
+---
+
+**Rekomendasi Film untuk User 45**
+
+| movieId | Title                  | Genres                                 | Score     |
+|:-------|:-----------------------|:---------------------------------------|:----------|
+| 1252    | Chinatown              | Crime Drama Mystery Thriller           | 19.394881 |
+| 2997    | Being John Malkovich   | Fantasy Drama Comedy                   | 18.961508 |
+| 1617    | L.A. Confidential      | Crime Drama Mystery Thriller           | 18.634464 |
+| 908     | North by Northwest     | Mystery Thriller                       | 18.420172 |
+| 923     | Citizen Kane           | Mystery Drama                          | 18.305990 |
+| 2858    | American Beauty        | Drama                                  | 18.291699 |
+| 912     | Casablanca             | Drama Romance                          | 18.020795 |
+| 111     | Taxi Driver            | Crime Drama                            | 17.924403 |
+| 1208    | Apocalypse Now         | Drama War                              | 17.881439 |
+| 3481    | High Fidelity          | Comedy Drama Romance Music             | 17.853777 |
+
+---
+
+**Interpretasi Rekomendasi**
+
+- Rekomendasi CF untuk **User 45** menunjukkan film-film dengan genre **Drama, Crime, Mystery, dan Thriller** yang konsisten dengan pola rating film sebelumnya.
+- Beberapa film rekomendasi seperti **Chinatown**, **L.A. Confidential**, dan **Taxi Driver** memiliki tema **misteri dan kriminal**, mirip dengan film favorit user seperti **Vertigo** dan **Dark City**.
+- Rekomendasi juga menyertakan **film klasik dengan reputasi tinggi**, seperti **Citizen Kane**, **Casablanca**, dan **Apocalypse Now**, yang relevan dengan preferensi user terhadap film-film klasik seperti **City Lights** dan **Beauty and the Beast**.
+- **Skor prediksi (Score)** dalam tabel menunjukkan estimasi minat user terhadap film tersebut, berdasarkan pola rating user lain yang mirip.
+
+---
+
+**Insight**
+
+Model **Collaborative Filtering Memory-Based** cukup efektif dalam memberikan rekomendasi personal yang sesuai dengan pola rating user, terutama jika user sudah memberikan rating pada beberapa film. Namun, model ini memiliki keterbatasan:
+
+- **Kelebihan**:
+  - Dapat menemukan film yang tidak secara eksplisit mirip secara konten, tetapi disukai oleh pengguna dengan selera yang mirip.
+  - Cocok untuk user yang sudah memiliki riwayat rating.
+
+- **Kekurangan**:
+  - Tidak efektif untuk **cold-start problem** (user baru tanpa rating atau film baru tanpa rating).
+  - Bisa terpengaruh oleh bias data (misalnya, genre yang populer akan sering muncul).
+
+---
+
+**Rekomendasi Film Berdasarkan Collaborative Filtering (Model-Based dengan RecommenderNet) untuk User 45**
+
+Berikut adalah hasil rekomendasi film untuk **User 45** berdasarkan model **Collaborative Filtering (Model-Based)** menggunakan **RecommenderNet**. Model ini memanfaatkan deep learning untuk mempelajari pola rating antar user dan film, sehingga mampu menghasilkan rekomendasi yang lebih kompleks dibandingkan memory-based.
+
+---
+
+**Rekomendasi Film untuk User 45**
+
+| movieId | Title                     | Genres                                 | Score     |
+|:-------|:--------------------------|:---------------------------------------|:----------|
+| 318     | The Shawshank Redemption   | Drama Crime                            | 0.999685  |
+| 593     | The Silence of the Lambs   | Crime Drama Thriller                   | 0.999664  |
+| 356     | Forrest Gump               | Comedy Drama Romance                    | 0.999612  |
+| 296     | Pulp Fiction               | Thriller Crime                          | 0.999611  |
+| 260     | Star Wars                  | Adventure Action Science Fiction        | 0.999609  |
+| 2571    | The Matrix                 | Action Science Fiction                  | 0.999547  |
+| 480     | Jurassic Park              | Adventure Science Fiction               | 0.999518  |
+| 608     | Fargo                      | Crime Drama Thriller                     | 0.999504  |
+| 527     | Schindler's List           | Drama History War                        | 0.999481  |
+| 1       | Toy Story                  | Animation Comedy Family                  | 0.999437  |
+
+---
+
+**Interpretasi Rekomendasi**
+
+- Rekomendasi RecommenderNet untuk **User 45** didominasi oleh **film-film ikonik dengan genre drama, crime, thriller, dan science fiction**. 
+- **The Shawshank Redemption**, **The Silence of the Lambs**, dan **Forrest Gump** muncul sebagai rekomendasi teratas, yang secara umum dianggap sebagai film masterpiece dengan rating tinggi di banyak platform.
+- Model ini mampu memberikan rekomendasi yang lebih **bervariasi secara genre**, seperti **Toy Story** (animation family) atau **Jurassic Park** (adventure sci-fi), menunjukkan kemampuan model dalam memahami preferensi secara lebih kompleks dibandingkan memory-based.
+- Ada juga beberapa overlap dengan film yang sudah pernah dirating tinggi oleh user, seperti **The Matrix** dan **City Lights** yang juga memiliki elemen sci-fi dan drama, menunjukkan konsistensi dengan pola preferensi user.
+
+---
+
+**Insight**
+
+- **Kelebihan** RecommenderNet:
+  - Lebih powerful dibandingkan CF Memory-Based karena bisa menangkap pola non-linear yang kompleks.
+  - Dapat memberikan rekomendasi dengan generalisasi yang lebih baik meskipun data rating terbatas.
+  - Cocok untuk dataset besar dengan variasi user yang luas.
+
+- **Kekurangan**:
+  - Membutuhkan waktu training lebih lama dan sumber daya komputasi lebih besar.
+  - Model lebih sulit untuk diinterpretasi karena sifatnya yang black-box.
+  - Tidak secara eksplisit memanfaatkan informasi konten film (tidak tahu tentang genre atau deskripsi film).
+
+---
+
 ## **Model Evaluation**
 
 ### **Content Based Filtering Evaluation**
 
-Evaluasi model Content-Based Filtering dilakukan dengan sanity check, yaitu dengan memeriksa apakah rekomendasi yang dihasilkan secara konten memang relevan dengan film acuan.
-Sebagai contoh, untuk film Beauty and the Beast, sistem merekomendasikan film dengan genre dan tema yang serupa, seperti Cinderella atau The Little Mermaid, yang menunjukkan bahwa model bekerja dengan baik dalam mengenali kesamaan konten.
+Dalam proyek **Sistem Rekomendasi Film** ini, kita telah membangun dua model **Content-Based Filtering (CBF)** dengan pendekatan berbeda, yaitu:
 
-Langkah-langkah evaluasinya:
-1. **Ambil user sample** (misalnya `user_id = 45`) dan cari film yang mereka beri rating tinggi (≥ 4.0).
-2. **Pilih satu film acak** dari daftar film yang disukai tersebut sebagai referensi (`ref_title`).
-3. **Gunakan model rekomendasi** untuk mencari Top-N film yang mirip secara konten dengan film referensi.
-4. **Bandingkan hasil rekomendasi** dari dua model:
-   - TF-IDF + Cosine Similarity
-   - CountVectorizer + Cosine Similarity
+- **TF-IDF Vectorizer**: Menghitung kemiripan antar film berdasarkan bobot kata yang lebih informatif, memperhatikan frekuensi kata dalam satu dokumen dan seluruh korpus.
+- **CountVectorizer**: Menghitung kemiripan antar film berdasarkan frekuensi kemunculan kata, tanpa mempertimbangkan bobot spesifik.
 
-Hasil evaluasi ditampilkan dalam bentuk tabel yang mencantumkan:
-- Film-film yang disukai user
-- Rekomendasi film dari masing-masing model
-- Genre dan skor similarity dari setiap film yang direkomendasikan
+Untuk mengevaluasi performa kedua model CBF ini, kita tidak bisa menggunakan metrik tradisional seperti **RMSE** atau **MAE** (karena tidak ada ground truth untuk rekomendasi berbasis konten). Oleh karena itu, kita menggunakan metode **sanity check berbasis analisis statistik dari similarity matrix**.
 
-Meskipun sederhana, metode ini cukup efektif untuk memastikan bahwa model mampu menangkap kesamaan konten yang relevan dengan preferensi pengguna.
+Evaluasi ini bertujuan untuk memahami bagaimana model CBF menangkap hubungan antar film, dengan fokus pada:
 
-**Referensi Film dan Rating Tinggi oleh User 45**
+1. **Rata-rata skor similarity teratas (avg_topN)**: Seberapa besar skor kemiripan rata-rata untuk setiap film terhadap Top-N film yang paling mirip.
+2. **Variansi skor similarity teratas (var_topN)**: Seberapa konsisten skor similarity pada Top-N film yang paling mirip.
 
-**Reference film**: *Beauty and the Beast*  
-**Daftar film yang diberi rating ≥ 4 oleh user 45:**
+Misalkan:
+- $N$ = jumlah film
+- $s_{ik}$ = skor similarity film ke-$i$ dengan film ke-$k$ dalam Top-10
 
-| #  | movieId | Title                   | Genres                             | Rating |
-|----|---------|-------------------------|-------------------------------------|--------|
-| 1  | 903     | Vertigo                 | Mystery Romance Thriller           | 5.0    |
-| 2  | 26151   | Au Hasard Balthazar     | Drama                              | 5.0    |
-| 3  | 7064    | Beauty and the Beast    | Drama Fantasy Romance              | 5.0    |
-| 4  | 1673    | Boogie Nights           | Drama                              | 4.5    |
-| 5  | 1333    | The Birds               | Horror                             | 4.5    |
-| 6  | 3307    | City Lights             | Comedy Drama Romance               | 4.5    |
-| 7  | 3160    | Magnolia                | Drama                              | 4.5    |
-| 8  | 1748    | Dark City               | Mystery Science Fiction            | 4.5    |
-| 9  | 2692    | Run Lola Run            | Action Drama Thriller              | 4.5    |
-| 10 | 1199    | Brazil                  | Comedy Science Fiction             | 4.0    |
-| 11 | 899     | Singin' in the Rain     | Comedy Music Romance               | 4.0    |
-| 12 | 5878    | Talk to Her             | Drama Romance                      | 4.0    |
-| 13 | 4235    | Amores perros           | Drama Thriller                     | 4.0    |
+Rumus perhitungan per film:
 
----
+$$
+\mathrm{avg\_top10}_i = \frac{1}{10}\sum_{k=1}^{10} s_{ik}
+$$
 
-**Top-10 Recommendations – TF-IDF Model**
+$$
+\mathrm{var\_top10}_i = \frac{1}{10}\sum_{k=1}^{10} \bigl(s_{ik} - \mathrm{avg\_top10}_i\bigr)^2
+$$
 
-| #  | movieId  | Title                       | Genres                                         | Similarity |
-|----|----------|-----------------------------|------------------------------------------------|------------|
-| 1  | 595      | Beauty and the Beast        | Romance Family Animation Fantasy Music         | 0.232116   |
-| 2  | 781      | Stealing Beauty             | Drama Romance                                  | 0.169768   |
-| 3  | 8915     | Stage Beauty                | Comedy Drama Romance                           | 0.169187   |
-| 4  | 2563     | Dangerous Beauty            | Drama Romance                                  | 0.160937   |
-| 5  | 100032   | Beauty Is Embarrassing      | Documentary                                    | 0.145942   |
-| 6  | 8929     | Black Beauty                | Drama Family                                   | 0.139603   |
-| 7  | 8851     | Smile                       | Comedy                                         | 0.126161   |
-| 8  | 3612     | The Slipper and the Rose    | Adventure Family Fantasy Romance               | 0.125474   |
-| 9  | 46578    | Little Miss Sunshine        | Comedy Drama                                   | 0.125412   |
-| 10 | 103984   | The Great Beauty            | Comedy Drama                                   | 0.120418   |
+Rata-rata keseluruhan model:
 
----
+$$
+\mathrm{avg\_top10}_{\mathrm{model}} = \frac{1}{N}\sum_{i=1}^{N} \mathrm{avg\_top10}_i
+$$
 
-**Top-10 Recommendations – CountVectorizer Model**
-
-| #  | movieId  | Title                       | Genres                                         | Similarity |
-|----|----------|-----------------------------|------------------------------------------------|------------|
-| 1  | 781      | Stealing Beauty             | Drama Romance                                  | 0.577350   |
-| 2  | 8915     | Stage Beauty                | Comedy Drama Romance                           | 0.516398   |
-| 3  | 2563     | Dangerous Beauty            | Drama Romance                                  | 0.500000   |
-| 4  | 595      | Beauty and the Beast        | Romance Family Animation Fantasy Music         | 0.421350   |
-| 5  | 8929     | Black Beauty                | Drama Family                                   | 0.387298   |
-| 6  | 61361    | The Women                   | Comedy Drama Romance                           | 0.384900   |
-| 7  | 58998    | Forgetting Sarah Marshall   | Comedy Romance Drama                           | 0.365148   |
-| 8  | 2894     | Romance                     | Romance Drama Comedy                           | 0.353553   |
-| 9  | 147010   | Thou Gild'st the Even       | Drama Romance Fantasy                          | 0.353553   |
-| 10 | 55498    | Silk                        | Drama Romance                                  | 0.333333   |
+$$
+\mathrm{var\_top10}_{\mathrm{model}} = \frac{1}{N}\sum_{i=1}^{N} \mathrm{var\_top10}_i
+$$
 
 
-**Interpretasi Evaluasi Model**
+Hasil evaluasi akan memberikan insight apakah model berhasil mengelompokkan film-film yang serupa dengan baik (**avg_topN tinggi dan var_topN rendah diharapkan untuk model yang baik**).
 
-Berdasarkan hasil evaluasi menggunakan user dengan ID `45`, model merekomendasikan film yang memiliki kemiripan konten dengan salah satu film favorit user, yaitu **"Beauty and the Beast"**.
+Berikut alur evaluasi yang dilakukan:
 
-User ini memiliki preferensi yang cukup jelas terhadap genre **Drama**, **Romance**, dan beberapa elemen **Fantasy**, **Thriller**, dan **Comedy**. Hal ini terlihat dari daftar film yang mereka beri rating tinggi, seperti *Vertigo*, *Boogie Nights*, *City Lights*, dan *Talk to Her*.
+- Fungsi `evaluate_sim_matrix`:
+  - Menghitung **rata-rata (avg)** dan **variansi (var)** dari skor similarity Top-N untuk setiap film.
+  - Menghapus skor similarity terhadap dirinya sendiri (self-score) agar hasil tidak bias.
+  - Output berupa DataFrame dengan nilai `avg_topN` dan `var_topN` per film.
 
-**TF-IDF Model**
-Rekomendasi dari model TF-IDF menampilkan film-film yang cukup relevan secara tematik dan emosional, seperti:
-- *Stealing Beauty*
-- *Stage Beauty*
-- *Dangerous Beauty*
+- Perbandingan dilakukan untuk dua model:
+  - **TF-IDF** (`sim_tfidf`)
+  - **CountVectorizer** (`sim_count`)
 
-Meskipun skor similarity relatif kecil (di bawah 0.25), model tetap mampu menyarankan film yang berkaitan erat dengan kata kunci "beauty" dan nuansa romantis. TF-IDF cenderung lebih fokus pada **kata-kata unik dan bobot tematik**.
+_**Catatan**_
 
-**CountVectorizer Model**
-Model ini memberikan skor similarity yang lebih tinggi secara numerik (hingga > 0.5), dengan film-film yang hampir identik secara kata seperti:
-- *Stealing Beauty*
-- *Stage Beauty*
-- *Dangerous Beauty*
+- Nilai **avg_top10** yang lebih tinggi menunjukkan model mampu menangkap hubungan antar film dengan lebih baik.
+- Nilai **var_top10** yang lebih kecil menunjukkan model memberikan hasil yang lebih stabil dan konsisten.
 
-Hasilnya sangat mirip dengan TF-IDF dalam hal judul, tetapi lebih literal karena CountVectorizer hanya menghitung **frekuensi kata**. Model ini lebih mudah "terpengaruh" oleh kemiripan kata secara eksplisit daripada bobot pentingnya.
+**Interpretasi Hasil Evaluasi Content-Based Filtering**
+
+**Hasil Evaluasi**
+
+| Metric     | TF-IDF     | CountVector |
+|:----------|:-----------|:-----------|
+| avg_top10  | 0.1551     | 0.4305     |
+| var_top10  | 0.0021     | 0.0020     |
+
+**Analisis**
+
+1. **Avg Top 10 Similarity (avg_top10)**:
+   - Nilai **avg_top10** untuk model **CountVectorizer (0.4305)** jauh lebih tinggi dibandingkan model **TF-IDF (0.1551)**.
+   - Ini menunjukkan bahwa CountVectorizer menghasilkan skor kemiripan yang lebih besar antar film secara keseluruhan, artinya film-film cenderung terlihat **lebih mirip** di mata model CountVectorizer dibandingkan TF-IDF.
+   - Sementara itu, nilai TF-IDF yang lebih rendah menunjukkan model ini **lebih konservatif** dalam menilai kemiripan antar film, cenderung hanya memberikan skor tinggi untuk film yang benar-benar sangat mirip secara kata kunci.
+
+2. **Variansi Top 10 Similarity (var_top10)**:
+   - Nilai **var_top10** hampir sama untuk kedua model, dengan **TF-IDF (0.0021)** sedikit lebih besar dibanding **CountVectorizer (0.0020)**.
+   - Variansi rendah pada kedua model menunjukkan bahwa **stabilitas skor similarity** cukup terjaga, artinya model menghasilkan skor similarity yang konsisten di antara Top-10 film teratas.
 
 **Insight**
-- Kedua model berhasil menemukan film-film yang berada di **jalur preferensi user**, terutama dalam tema romantis dan drama.
-- TF-IDF bekerja baik untuk menangkap nuansa dan bobot kata, meski skor similarity-nya lebih kecil.
-- CountVectorizer lebih sensitif terhadap kata yang sering muncul, menghasilkan skor similarity yang lebih tinggi tapi juga lebih "kasar" dalam interpretasi.
 
-Secara keseluruhan, hasil ini menunjukkan bahwa **model content-based dapat memberikan rekomendasi yang relevan** dengan memanfaatkan informasi konten film, bahkan tanpa data interaksi user lain.
+- Model **CountVectorizer** cenderung memberikan skor similarity yang **lebih tinggi secara keseluruhan**, sehingga film-film terlihat lebih saling mirip. Ini bisa membuat rekomendasi menjadi **kurang spesifik** karena cenderung menganggap banyak film sebagai mirip.
+- Sementara model **TF-IDF** menghasilkan skor similarity yang **lebih rendah**, yang artinya model ini lebih **selektif** dalam menentukan kemiripan antar film. Hal ini bisa lebih cocok jika ingin rekomendasi yang lebih "tajam" dan tidak terlalu general.
+- Variansi rendah pada kedua model menunjukkan **konsistensi** hasil, jadi meskipun nilai skor berbeda, distribusi similarity antar film tetap cukup stabil.
 
-**Sehingga model yang digunakan yaitu TF-IDF Vectorized**
+**Kesimpulan**
+
+- Model terbaik yang diperoleh dari hasil training pada proyek ini yaitu model **CountVectorizer**
+
+---
+
 
 
 ### **Collaborative Filtering Evaluation**
@@ -874,167 +1050,23 @@ Grafik di atas membandingkan performa dua model Collaborative Filtering berdasar
 
 Namun, untuk kondisi saat ini, **model Memory-Based menjadi pilihan yang lebih baik** dalam hal akurasi prediksi rating.
 
-
-## **Recommendation Result**
-
-Setelah seluruh model dibangun, dikomputasi, dan dievaluasi, tahap selanjutnya adalah menghasilkan **rekomendasi film Top-N** untuk pengguna. Rekomendasi ini dihasilkan dari dua pendekatan utama:
-
-1. **Content-Based Filtering Recommendation**  
-   Memberikan rekomendasi berdasarkan kesamaan konten film (judul, genre, keywords) dengan film yang disukai oleh user.
-
-2. **Collaborative Filtering Recommendation**  
-   Memberikan rekomendasi personalized berdasarkan pola interaksi user terhadap film, baik menggunakan kemiripan antar item (memory-based) maupun representasi laten user-item (RecommenderNet).
-
-Output dari masing-masing pendekatan berupa daftar **Top-N film** yang disarankan untuk user tertentu, disertai dengan skor kemiripan atau prediksi rating.
-
-Rekomendasi ini dapat digunakan untuk mengevaluasi kualitas prediksi model secara kualitatif, serta melihat seberapa relevan film yang disarankan terhadap preferensi pengguna.
-
-### **Content Based Filtering Recommendation**
-
-Pada bagian ini, sistem akan memberikan **Top-N rekomendasi film** berdasarkan kemiripan konten dengan film yang menjadi referensi. Pendekatan yang digunakan adalah:
-
-- **Model**: TF-IDF Vectorizer + Cosine Similarity
-- **Input**: Judul film yang disukai user
-- **Output**: Daftar film yang memiliki kemiripan konten tertinggi dengan film tersebut
-
-Fungsi `recommend_cb()` digunakan untuk:
-1. Mengambil film referensi berdasarkan judul input.
-2. Menggunakan model content-based untuk mencari film yang mirip secara konten (judul, keyword, genre).
-3. Mengembalikan rekomendasi Top-N film dengan skor similarity tertinggi, disertai informasi genre.
-
-Contoh penggunaannya:
-```python
-recommend_cb("The Matrix")
-```
-
-![recommendation_result_cbf](https://raw.githubusercontent.com/harisyf/movie-recommender-system/main/images/recommendation_result_cbf.png)
-
-**Interpretation – Content-Based Recommendation (TF-IDF)**
-
-Rekomendasi di atas dihasilkan oleh model Content-Based Filtering dengan pendekatan **TF-IDF + Cosine Similarity**, berdasarkan film referensi: **"The Matrix"**.
-
-**Insight dari Rekomendasi:**
-
-- Film-film yang direkomendasikan memiliki kemiripan genre yang kuat dengan *The Matrix*, yaitu dominasi elemen **Action**, **Thriller**, dan **Science Fiction**.
-- Beberapa judul seperti:
-  - *The Matrix Reloaded* dan *The Matrix Revolutions* — adalah sekuel langsung dari film aslinya, sehingga kemiripannya sangat tinggi secara konten.
-  - *Terminator 3*, *I, Robot*, dan *Ghost in the Shell* — mengangkat tema futuristik, kecerdasan buatan, dan perlawanan terhadap sistem, selaras dengan nuansa *The Matrix*.
-- Genre yang paling sering muncul di daftar adalah **Science Fiction**, menunjukkan bahwa model berhasil menangkap genre inti dari film referensi.
-
-**Skor Similarity:**
-
-- Skor tertinggi dicapai oleh *The Matrix Reloaded* (0.359), diikuti *The Matrix Revolutions* (0.290), yang masuk akal mengingat keterkaitannya dalam waralaba.
-- Skor similarity menurun secara bertahap, menandakan model mampu memprioritaskan film dengan kesamaan konten lebih tinggi terlebih dahulu.
-
-**Kesimpulan:**
-
-Model berhasil memberikan rekomendasi yang **relevan secara tematik dan genre**, dan mampu mengenali hubungan konten baik eksplisit (franchise) maupun implisit (tema dan nuansa). Ini membuktikan bahwa pendekatan content-based dapat memberikan saran yang akurat meskipun hanya bermodal satu film sebagai referensi.
-
-
-### **Collaborative Filtering Recommendation**
-
-Pada bagian ini, sistem memberikan **Top-N rekomendasi film secara personalized** untuk user tertentu menggunakan pendekatan Collaborative Filtering berbasis memori (item-item).
-
-Fungsi `recommend_cf()` bekerja dengan dua output utama:
-1. **Top-N rekomendasi film** untuk user berdasarkan pola rating terhadap film serupa.
-2. **Daftar film yang sebelumnya disukai user** (rating ≥ threshold), sebagai perbandingan relevansi.
-
-Model yang digunakan:
-- **Memory-Based Collaborative Filtering**
-- Pendekatan item-item dengan cosine similarity antar film
-
-Parameter yang digunakan:
-- `user_id`: ID pengguna target
-- `top_n`: jumlah film yang direkomendasikan
-- `threshold`: batas minimal rating yang dianggap “disukai” user (default: 4.0)
-
-Fungsi ini berguna untuk mengevaluasi apakah model berhasil memberikan rekomendasi yang sesuai dengan selera pengguna berdasarkan histori interaksinya.
-
-Contoh penggunaannya:
-```python
-recommend_cf(user_id=45)
-```
-
-**Rekomendasi untuk User ID 45:**
-
-| Rank | movieId | Title                   | Genres                                      | Predicted Score |
-|------|---------|--------------------------|---------------------------------------------|-----------------|
-| 1    | 1252    | Chinatown                | Crime Drama Mystery Thriller                | 19.394881       |
-| 2    | 2997    | Being John Malkovich     | Fantasy Drama Comedy                        | 18.961508       |
-| 3    | 1617    | L.A. Confidential        | Crime Drama Mystery Thriller                | 18.634464       |
-| 4    | 908     | North by Northwest       | Mystery Thriller                            | 18.420172       |
-| 5    | 923     | Citizen Kane             | Mystery Drama                               | 18.305990       |
-| 6    | 2858    | American Beauty          | Drama                                       | 18.291699       |
-| 7    | 912     | Casablanca               | Drama Romance                               | 18.020795       |
-| 8    | 111     | Taxi Driver              | Crime Drama                                 | 17.924403       |
-| 9    | 1208    | Apocalypse Now           | Drama War                                   | 17.881439       |
-| 10   | 3481    | High Fidelity            | Comedy Drama Romance Music                  | 17.853777       |
-
-
-**Film yang pernah dirating tinggi oleh User ID 45:**
-
-| Rank | movieId | Title                   | Genres                               | Rating |
-|------|---------|--------------------------|--------------------------------------|--------|
-| 1    | 903     | Vertigo                  | Mystery Romance Thriller             | 5.0    |
-| 2    | 26151   | Au Hasard Balthazar      | Drama                                | 5.0    |
-| 3    | 7064    | Beauty and the Beast     | Drama Fantasy Romance                | 5.0    |
-| 4    | 1673    | Boogie Nights            | Drama                                | 4.5    |
-| 5    | 1333    | The Birds                | Horror                               | 4.5    |
-| 6    | 3307    | City Lights              | Comedy Drama Romance                 | 4.5    |
-| 7    | 3160    | Magnolia                 | Drama                                | 4.5    |
-| 8    | 1748    | Dark City                | Mystery Science Fiction              | 4.5    |
-| 9    | 2692    | Run Lola Run             | Action Drama Thriller                | 4.5    |
-| 10   | 1199    | Brazil                   | Comedy Science Fiction               | 4.0    |
-
-#### 🧐 Interpretation – Collaborative Filtering Recommendation (Memory-Based)
-
-Rekomendasi di atas dihasilkan oleh model Collaborative Filtering berbasis memori (item-item), untuk user dengan ID `45`.
-
-##### 🎬 Preferensi User
-Berdasarkan histori rating, user 45 menunjukkan ketertarikan kuat terhadap film dengan genre:
-- **Drama**, **Mystery**, dan **Thriller**
-- Beberapa elemen **Romance**, **Fantasy**, dan **Sci-Fi**
-- Menyukai film-film klasik dan sinematik yang kuat secara naratif
-
-Contoh film yang disukai:
-- *Vertigo*, *Beauty and the Beast*, *Boogie Nights*, *Magnolia*, *City Lights*
-
-##### 🔍 Insight dari Rekomendasi
-Model berhasil memberikan rekomendasi yang sangat **selaras dengan gaya dan selera film user**, seperti:
-- *Chinatown*, *L.A. Confidential*, *Citizen Kane* — film klasik dengan genre **Mystery/Drama**
-- *Being John Malkovich*, *High Fidelity* — film dengan **narasi unik dan psikologis**
-- *Casablanca*, *American Beauty*, *Apocalypse Now* — termasuk film **ikonik dan award-winning** dengan kedalaman karakter
-
-##### 📈 Skor Prediksi
-- Skor tertinggi mencapai **19.39**, menandakan model memiliki kepercayaan tinggi terhadap kecocokan film tersebut dengan user.
-- Seluruh rekomendasi berada pada rentang skor tinggi, menunjukkan konsistensi model dalam mengenali pola preferensi user dari histori rating-nya.
-
-##### ✅ Kesimpulan
-Model Collaborative Filtering berbasis memori berhasil memberikan rekomendasi yang:
-- **Personalized dan relevan secara tematik**
-- Selaras dengan gaya sinematik user yang cenderung **klasik, emosional, dan naratif**
-- Mampu mengenali selera user tanpa perlu mengetahui isi konten film secara eksplisit
-
-Rekomendasi seperti ini sangat cocok untuk user aktif dengan riwayat interaksi yang cukup kaya, dan bisa meningkatkan kepuasan dalam eksplorasi film serupa.
-
-
-
 ## Kesimpulan
 Pada proyek ini, kita telah berhasil membangun dan mengevaluasi dua pendekatan utama dalam sistem rekomendasi film:
 
 ---
 
-### 1. **Content-Based Filtering (CBF)**  
-CBF menggunakan informasi konten dari film seperti **judul**, **keywords**, dan **genre** untuk menghitung kemiripan antar film. Model ini sangat efektif digunakan saat data interaksi user masih terbatas (cold-start problem).  
-Dua varian model yang dibangun:
-- **TF-IDF + Cosine Similarity** — menangkap bobot penting kata
-- **CountVectorizer + Cosine Similarity** — menghitung frekuensi kata
+1. **Content-Based Filtering (CBF)**  
+CBF menggunakan informasi konten dari film seperti **judul**, **keywords**, dan **genre** untuk menghitung kemiripan antar film. Model ini sangat efektif digunakan saat data interaksi user masih terbatas (*cold-start problem*).
 
-> 🔎 *Hasil evaluasi menunjukkan bahwa TF-IDF + Cosine Similarity mampu merekomendasikan film yang relevan secara tematik dengan preferensi user.*
+Dua varian model yang dibangun:
+- **TF-IDF + Cosine Similarity** — menangkap bobot penting kata, memberikan rekomendasi yang lebih **spesifik dan selektif**.
+- **CountVectorizer + Cosine Similarity** — menghitung frekuensi kata, menghasilkan skor similarity yang **lebih tinggi dan cenderung lebih luas**.
+
+> 🔎 *Hasil evaluasi menunjukkan bahwa CountVectorizer cenderung memberikan skor similarity yang lebih besar antar film, menghasilkan rekomendasi yang lebih luas, sementara TF-IDF memberikan skor yang lebih rendah namun lebih selektif. Variansi similarity di kedua model relatif rendah, menunjukkan stabilitas hasil.*
 
 ---
 
-### 2. **Collaborative Filtering (CF)**  
+2. **Collaborative Filtering (CF)**  
 CF memberikan rekomendasi berdasarkan pola interaksi user dengan film. Pendekatan ini menghasilkan rekomendasi personalized yang lebih tajam seiring bertambahnya data rating.
 Model yang dibangun:
 - **Memory-Based CF** — menggunakan cosine similarity antar item
@@ -1046,18 +1078,10 @@ Model yang dibangun:
 
 **Final Insight**
 
+- Terbentuknya sistem rekomendasi yang dapat membantu user dalam mendapatkan rekomendasi film yang sesuai dengan preferensinya.
 - **CBF cocok untuk user baru**, karena tidak membutuhkan histori rating.
 - **CF cocok untuk user aktif**, karena dapat memberikan rekomendasi yang lebih personal.
 - Kombinasi keduanya dapat menjadi fondasi untuk **hybrid recommendation system** di masa depan.
 
-Tahap selanjutnya dari proyek ini dapat mencakup:
-- Evaluasi tambahan menggunakan **Precision@K**, **Recall@K**, dan **MAP**
-- Eksplorasi **Hybrid Filtering**
-- Penerapan sistem dalam bentuk API atau aplikasi interaktif
 
 Sistem rekomendasi yang telah dibangun membuktikan bahwa pendekatan machine learning dapat secara efektif membantu user menemukan film yang sesuai dengan preferensi mereka.
-
-
-
-
-
